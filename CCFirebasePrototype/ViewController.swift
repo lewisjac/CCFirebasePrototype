@@ -16,7 +16,6 @@ class ViewController: UIViewController {
     var ref: DatabaseReference!
     var totalCals: Int = 0
     var entries = [CalorieEntry]()
-    var extractData = [ExtractData]()
     var calories = [String]()
     var totalSpentCals: Int = 0
     var numCalsArray = [Int]()
@@ -27,15 +26,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
-        dbRef = Database.database().reference().child("entry-entry")
+        dbRef = Database.database().reference().child("jacksavagery")
         pullData()
        // totalCalories()
         
     }
-    
-
-    
-    
     
     func startObservingDB() {
         dbRef.observe(.value, with: {(snapshot: DataSnapshot) in
@@ -68,7 +63,7 @@ class ViewController: UIViewController {
         }
         
         if let sweetContent = userEnteredCalories {
-            let sweet = CalorieEntry(calories: sweetContent, description: food, dateTime: now, addedByUser: "lewisjac12")// this creates a sweet object we can pass along to firebase
+            let sweet = CalorieEntry(calories: sweetContent, description: food, dateTime: now, addedByUser: "jacksavagery")// this creates a sweet object we can pass along to firebase
             let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
             sweetRef.setValue(sweet.toAnyObject())
         }
@@ -76,65 +71,89 @@ class ViewController: UIViewController {
     }
     
     func pullData(){
-        ref = Database.database().reference()
-        ref.child("entry-entry").observeSingleEvent(of: .value, with: { (snapshot) in
-            // Get user value
-            let value = snapshot.value as? NSDictionary
-            print(value)
-
         
-            
-        }) { (error) in
-            print(error.localizedDescription)
+        // Fetch Data
+        var dictData = [String:Any]()
+        let ref = Database.database().reference()
+        ref.observe(.childAdded, with: { (snapshot) in
+          //  print(snapshot.value!)
+            dictData = snapshot.value as! [String:Any]
+            if let avalla = dictData["Sep 12, 2018 07:46:15"] as? [String:Any] {
+                let vail = avalla
+                if let availluh = vail as? [String:String] {
+                    let duvail = availluh
+                    if let bvalli = duvail["calorieEntry"] {
+                        let ventaes = bvalli
+                        print("\n\n HERE IT IS: \(ventaes) \n\n\n\n")
+                    }
+                }
+            }
+           // let ahvailla = avalla?["calorieEntry"] as? [String:String]
+          
+        })
+        
+       //  Extract the Data from SnapShot
+        var arrFetchedData:NSMutableArray = NSMutableArray()
+        for data in dictData {
+            let tempDict:NSMutableDictionary = NSMutableDictionary()
+            let innerData = data.value as! [String:Any]
+            let addedByUser = innerData["Sep 12, 2018 07:46:15"]
+            print(addedByUser)
+            tempDict.setValue(addedByUser, forKey: "calorieEntry")
+            arrFetchedData.add(tempDict)
         }
-        
-        
+       // print("\n\n\n THIS IS THE SUAHCE: \(arrFetchedData) \n\n\n")
+
         /*
             NEXT STEPS:
-            Change the Firebase Data Structure to use a username as the main form of storage.
-            When calling, it can then use that as a child as well, gaining simple access to
-            all of the necessary data.
+                The date needs to be associated with the calorie entry.
+                 - aggregate all calories for the day as well as the last seven days as seperate totals
  
         */
         
         
-        
-        
-        
-        
-         //        accessing the data from Firebase is the very last thing the program does, so it wil print what is outside the following function before it prints what is inside the function.d
 
-
-        func completionHandler(snapshot: DataSnapshot?) {
-            if let datas = snapshot?.children.allObjects as? [DataSnapshot] {
-                let results = datas.compactMap({ // was .flatMap
-                    ($0.value as! [String: Any])["calorieEntry"]
-                })
-                print("here are the results: \(results)")
-                self.calories = results as! [String]
-                print("\n\n\n call array in the function: \(self.calories)\n\n\n")
-            }
-        }
-
-       // Database.database().reference().child("entry-entry").observeSingleEvent(of: .childAdded, with: nil)
-
-
-        Database.database().reference().child("entry-entry").observe(.value) { snapshot in
-            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
-                let results = datas.compactMap({ // was .flatMap
-                    ($0.value as! [String: String])["calorieEntry"]
-                })
-                print("here are the results: \(results)")
-                self.themResults(thems: results)
-                self.calories = results as! [String]
-                self.displayTotalSpent()
-               
-
-
-            }
-        }
-
-    
+        // Primary Data Collector
+//        Database.database().reference().child("jacksavagery").observe(.value) { snapshot in
+//            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
+//                let caloriesArray = datas.compactMap({ // was .flatMap
+//                    ($0.value as! [String: String])["calorieEntry"]
+//                })
+//
+//                let dates = datas.compactMap({
+//                    ($0.value as! [String: String])["dateTime"]
+//                })
+//
+//
+//                let alternativeResults = datas.last
+//                print("HERE'S WHAT YOU'RE LOOKING FUR \(dates)")
+//              //  print("here are the results: \(results)")
+//                self.themResults(thems: caloriesArray)
+//                self.calories = caloriesArray
+//                self.displayTotalSpent()
+//
+//            }
+//        }
+//
+//        Database.database().reference().child("jacksavagery").observe(.value) { snapshot in
+//            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
+//
+//
+//                print("\n\n\n\n\n \(datas)\n\n\n\n\n")
+//                let datars = datas.compactMap({ // was .flatMap
+//                    ($0.value as! [String: String])["Sep 12, 2018 08:47:39"]
+//                })
+//                        print("\n\n\n\n\n \(datars)\n\n\n\n\n")
+//
+//            }
+//
+//            let dataers = snapshot.childSnapshot(forPath: "Sep 12, 2018 08:47:39")
+//            let um = dataers.children.allObjects as? [AnyObject]
+//            print("THIS?:: \(um)")
+//            print("The datars: \n\n\n \(dataers) \n\n\n\n")
+//            let datum = snapshot.value as? [String:String]
+//            print(datum)
+//        }
     }
     
     func themResults(thems: [String]) {
@@ -147,37 +166,17 @@ class ViewController: UIViewController {
                 numCalArray.append(calAsNum)
             }
         }
-        print("Thems results: \(numCalArray)")
+     // print("Thems results: \(numCalArray)")
         
         for x in numCalArray {
             totalCals += x
         }
-        print("TOTAL CALORIES EVAR: \(totalCals)")
+       // print("TOTAL CALORIES EVAR: \(totalCals)")
         self.totalCals = totalCals
-        print("FROM THE TOP: \(self.totalCals)")
+       // print("FROM THE TOP: \(self.totalCals)")
     }
     
-   /*
-    func totalCalories(array: [String]) {
-        var calAsNum = 0
-        /*let calArray = pullData()
-        for calorie in calArray {
-            if calorie != "" {
-                calAsNum = Int(calorie)!
-                self.numCalsArray.append(calAsNum)
-            }
-        }
- */
-        
-        for num in numCalsArray {
-            totalSpentCals += num
-        }
-        print("\n The total spent calories from the totalCalories(array:) function is: \(totalSpentCals)\n")
-        let stringNum = String(totalSpentCals)
-        
 
-    }
- */
  
     
     func displayTotalSpent() {

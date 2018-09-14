@@ -10,7 +10,6 @@
 		6F79F5E4DDA73DFCAF096A5B /* Pods_CCFirebasePrototype.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B08C30950E0B57C2D7D49E9 /* Pods_CCFirebasePrototype.framework */; };
 		931A5BF0C085BB6A255D22BD /* Pods_CCFirebasePrototypeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553FEF1E3ADE72BBBE1E3B60 /* Pods_CCFirebasePrototypeUITests.framework */; };
 		B121629E213DB17700CA5DB2 /* CalorieEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B121629D213DB17700CA5DB2 /* CalorieEntry.swift */; };
-		B12162A2213EC32900CA5DB2 /* ExtractData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12162A1213EC32900CA5DB2 /* ExtractData.swift */; };
 		B17386BF213DA41D00EB30A6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17386BE213DA41D00EB30A6 /* AppDelegate.swift */; };
 		B17386C1213DA41D00EB30A6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17386C0213DA41D00EB30A6 /* ViewController.swift */; };
 		B17386C4213DA41D00EB30A6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B17386C2213DA41D00EB30A6 /* Main.storyboard */; };
@@ -49,7 +48,6 @@
 		934D8949B2D6B43837CB9A19 /* Pods-CCFirebasePrototypeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CCFirebasePrototypeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CCFirebasePrototypeTests/Pods-CCFirebasePrototypeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		9B08C30950E0B57C2D7D49E9 /* Pods_CCFirebasePrototype.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CCFirebasePrototype.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B121629D213DB17700CA5DB2 /* CalorieEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieEntry.swift; sourceTree = "<group>"; };
-		B12162A1213EC32900CA5DB2 /* ExtractData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractData.swift; sourceTree = "<group>"; };
 		B17386BB213DA41D00EB30A6 /* CCFirebasePrototype.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCFirebasePrototype.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B17386BE213DA41D00EB30A6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B17386C0213DA41D00EB30A6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 				B17386BE213DA41D00EB30A6 /* AppDelegate.swift */,
 				B17386C0213DA41D00EB30A6 /* ViewController.swift */,
 				B121629D213DB17700CA5DB2 /* CalorieEntry.swift */,
-				B12162A1213EC32900CA5DB2 /* ExtractData.swift */,
 				B17386C2213DA41D00EB30A6 /* Main.storyboard */,
 				B17386C5213DA41E00EB30A6 /* Assets.xcassets */,
 				B17386C7213DA41E00EB30A6 /* LaunchScreen.storyboard */,
@@ -337,15 +334,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-CCFirebasePrototypeTests-checkManifestLockResult.txt",
 			);
@@ -359,15 +352,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-CCFirebasePrototypeUITests-checkManifestLockResult.txt",
 			);
@@ -408,7 +397,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B121629E213DB17700CA5DB2 /* CalorieEntry.swift in Sources */,
-				B12162A2213EC32900CA5DB2 /* ExtractData.swift in Sources */,
 				B17386C1213DA41D00EB30A6 /* ViewController.swift in Sources */,
 				B17386BF213DA41D00EB30A6 /* AppDelegate.swift in Sources */,
 			);

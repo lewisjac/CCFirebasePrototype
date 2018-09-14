@@ -6,6 +6,14 @@
 //  Copyright © 2018 Jack Simmons. All rights reserved.
 //
 
+
+
+/*
+ The completed app must:
+    - calculate last seven days of calories in cached calories
+    - 
+ */
+
 import Foundation
 import FirebaseDatabase
 
