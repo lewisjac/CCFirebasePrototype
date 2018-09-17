@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     var calories = [String]()
     var totalSpentCals: Int = 0
     var numCalsArray = [Int]()
+     var array = [String]()
     @IBOutlet weak var calorieTextBox: UITextField!
     @IBOutlet weak var foodDescription: UITextField!
     @IBOutlet weak var spent: UILabel!
@@ -71,7 +72,29 @@ class ViewController: UIViewController {
     }
     
     func pullData(){
+        let ref = Database.database().reference()
+        let bar = ref.child("jacksavagery").observe(.value, with: { (snapshot) in
+            if snapshot.exists() {
+                if let aDictionary = snapshot.value as? NSDictionary {
+                    for artists in aDictionary.keyEnumerator() {
+                        if let aKey = artists as? String {
+                            self.array.append(aKey)
+                            // print(("-----B------\n\n HERE IS THE SAUCE: \(aKey) \n\n-------E------"))
+                        }
+                    }
+                }
+            } else {
+                print("no data")
+            }
+           // print(("-----B------\n\n HERE IS THE SAUCE: \(array) \n\n-------E------"))
+            self.dateReorganizer()
+        }) { (error) in
+            print(error)
+        }
         
+        
+        
+        /* ---------------- Working Code that pulls out single entry ----------------------
         // Fetch Data
         var dictData = [String:Any]()
         let ref = Database.database().reference()
@@ -84,35 +107,19 @@ class ViewController: UIViewController {
                     let duvail = availluh
                     if let bvalli = duvail["calorieEntry"] {
                         let ventaes = bvalli
-                        print("\n\n HERE IT IS: \(ventaes) \n\n\n\n")
+                   //     print("\n\n HERE IT IS: \(ventaes) \n\n\n\n")
                     }
                 }
             }
+            
+          
            // let ahvailla = avalla?["calorieEntry"] as? [String:String]
           
         })
+      let value = ref.child("jacksavagery").childByAutoId().description()
+        print("\n\n\n\n\(value)\n\n\n\n\n")
+        */ // ----------------------- END WORKING CODE -------------------------------------
         
-       //  Extract the Data from SnapShot
-        var arrFetchedData:NSMutableArray = NSMutableArray()
-        for data in dictData {
-            let tempDict:NSMutableDictionary = NSMutableDictionary()
-            let innerData = data.value as! [String:Any]
-            let addedByUser = innerData["Sep 12, 2018 07:46:15"]
-            print(addedByUser)
-            tempDict.setValue(addedByUser, forKey: "calorieEntry")
-            arrFetchedData.add(tempDict)
-        }
-       // print("\n\n\n THIS IS THE SUAHCE: \(arrFetchedData) \n\n\n")
-
-        /*
-            NEXT STEPS:
-                The date needs to be associated with the calorie entry.
-                 - aggregate all calories for the day as well as the last seven days as seperate totals
- 
-        */
-        
-        
-
         // Primary Data Collector
 //        Database.database().reference().child("jacksavagery").observe(.value) { snapshot in
 //            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
@@ -135,25 +142,24 @@ class ViewController: UIViewController {
 //            }
 //        }
 //
-//        Database.database().reference().child("jacksavagery").observe(.value) { snapshot in
-//            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
-//
-//
-//                print("\n\n\n\n\n \(datas)\n\n\n\n\n")
-//                let datars = datas.compactMap({ // was .flatMap
-//                    ($0.value as! [String: String])["Sep 12, 2018 08:47:39"]
-//                })
-//                        print("\n\n\n\n\n \(datars)\n\n\n\n\n")
-//
-//            }
-//
-//            let dataers = snapshot.childSnapshot(forPath: "Sep 12, 2018 08:47:39")
-//            let um = dataers.children.allObjects as? [AnyObject]
-//            print("THIS?:: \(um)")
-//            print("The datars: \n\n\n \(dataers) \n\n\n\n")
-//            let datum = snapshot.value as? [String:String]
-//            print(datum)
-//        }
+        
+    }
+    
+    func dateReorganizer() {
+        var convertedArray: [Date] = []
+        
+        var dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        
+        for dat in self.array {
+            let date = dateFormatter.date(from: dat)
+            if let date = date {
+                convertedArray.append(date)
+            }
+        }
+        
+        var actualConversion = convertedArray.sorted(by: {$0.compare($1) == .orderedAscending})
+        print(("-----B------\n\n HERE IS THE SAUCE: \(actualConversion) \n\n-------E------"))
     }
     
     func themResults(thems: [String]) {
