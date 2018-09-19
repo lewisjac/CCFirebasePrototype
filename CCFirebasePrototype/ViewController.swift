@@ -15,23 +15,25 @@ class ViewController: UIViewController {
     var dbRef: DatabaseReference!
     var totalCals: Int = 0
     var entries = [CalorieEntry]()
-    var calories = [String]()
+    var calories = [Int]()
     var dates = [Date]()
     var totalSpentCals: Int = 0
     var numCalsArray = [Int]()
-     var array = [String]()
+    var keyDateArray = [String]() // this array holds the keys which gain access to the values in the fb databse
+    
     @IBOutlet weak var calorieTextBox: UITextField!
     @IBOutlet weak var foodDescription: UITextField!
     @IBOutlet weak var spent: UILabel!
+    @IBOutlet weak var cache: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
         self.dbRef = Database.database().reference().child("jacksavagery")
-        pullData()
-        
+        pullKeysFromFirebase()
         
     }
+    
     
     func startObservingDB() {
         dbRef.observe(.value, with: {(snapshot: DataSnapshot) in
@@ -43,14 +45,14 @@ class ViewController: UIViewController {
             }
             
             self.entries = newSweets
-          //  self.tableView.reloadData()
+            //  self.tableView.reloadData()
             
         }, withCancel: {(error: Error) in
             print(error.localizedDescription)
         })
     }
     
-
+    
     
     @IBAction func addCalories(_ sender: UIButton) {
         let date = Date()
@@ -60,11 +62,11 @@ class ViewController: UIViewController {
         let userEnteredCalories = calorieTextBox.text
         var food = ""
         if let desc = foodDescription.text {
-           food = desc
+            food = desc
         }
         
         if let sweetContent = userEnteredCalories {
-            let sweet = CalorieEntry(calories: sweetContent, description: food, dateTime: now, addedByUser: "jacksavagery")// this creates a sweet object we can pass along to firebase
+            let sweet = CalorieEntry(calories: sweetContent, description: food, dateTime: now, calorieLimit: "2500")// this creates a sweet object we can pass along to firebase
             let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
             sweetRef.setValue(sweet.toAnyObject())
         }
@@ -73,15 +75,15 @@ class ViewController: UIViewController {
         foodDescription.text = ""
     }
     
-    func pullData(){
-        
+    
+    func pullKeysFromFirebase(){
         // Pulls all keys from the provided username. The keys are the exact date and time of each calorie entry.
-        let bar = self.dbRef.observe(.value, with: { (snapshot) in
+        let databaseObservance = self.dbRef.observe(.value, with: { (snapshot) in
             if snapshot.exists() {
                 if let aDictionary = snapshot.value as? NSDictionary {
-                    for artists in aDictionary.keyEnumerator() {
-                        if let aKey = artists as? String {
-                            self.array.append(aKey)
+                    for value in aDictionary.keyEnumerator() {
+                        if let aKey = value as? String {
+                            self.keyDateArray.append(aKey)
                         }
                     }
                 }
@@ -89,32 +91,173 @@ class ViewController: UIViewController {
                 print("no data")
             }
             let arrayOfOrderedDates = self.organizeDatesOldestToNewest()
-            self.analyzeCalorieData(dates: arrayOfOrderedDates)
+            self.pullCaloriesFromFirebase()
         }) { (error) in
             print(error)
         }
     }
     
+    // Find the last seven days worth of calories including those spent today
+    func lastSevenDates(dates: [String]) -> [String] {
+        let datesAsStringArray = dates
+        var convertedArrayAsTypeDate: [Date] = []
+        var convertedArrayAsTypeString: [String] = []
+        var arrayOfLastSevenDays = [Date]()
+        
+        // Converts strings to dates
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        for date in datesAsStringArray {
+            let date = dateFormatter.date(from: date)
+            if let date = date {
+                convertedArrayAsTypeDate.append(date)
+            }
+        }
+        
+        // Find last seven days of calories starting with the most recent calorie entry
+        let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1}
+        var index = keysAsDates.count - 1
+        let currentDate = Date()
+        let sevenDaysAgo = Date() - 7
+        
+        while index > -1 {
+            if convertedArrayAsTypeDate[index] > sevenDaysAgo {
+                arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
+            }
+            index -= 1
+        }
+        
+        for date in keysAsDates {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+            let convdate = dateFormatter.string(from: date)
+            convertedArrayAsTypeString.append(convdate)
+        }
+        
+        return convertedArrayAsTypeString
+    }
+    
+    // Find keys for each day's last calorie entry which includes the user's final calorie limit setting for that day
+    func findEndOfDayCacheLimit(dates: [String]) -> [String] {
+        let datesAsStringArray = dates
+        var convertedArrayAsTypeDate: [Date] = []
+        var convertedArrayAsTypeString: [String] = []
+        var arrayOfLastSevenDays = [Date]()
+        
+        // Converts strings to dates
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        for date in datesAsStringArray {
+            let date = dateFormatter.date(from: date)
+            if let date = date {
+                convertedArrayAsTypeDate.append(date)
+            }
+        }
+        
+        let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1}
+        print("This is the order of the dates \(keysAsDates)")
+        var index = keysAsDates.count - 1
+        let currentDate = Date()
+        let sevenDaysAgo = Date() - 7
+        
+        // poentiall use the following:
+        /*
+ 
+         https://classictutorials.com/2015/07/how-to-get-current-day-month-and-year-in-nsdate-using-swift/
+         
+        */
+        // Find the last date in the day by comparing it to the next date, if the day does not match, append, else continue.
+        // 1. pull the day from
+        
+        while index > -1 {
+            if convertedArrayAsTypeDate[index] > sevenDaysAgo {
+                arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
+            }
+            index -= 1
+        }
+        
+        for date in keysAsDates {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+            let convdate = dateFormatter.string(from: date)
+            convertedArrayAsTypeString.append(convdate)
+        }
+        
+        
+        
+        let strang = [""]
+        return strang
+    }
+    
+    
+    // Find calories that have been spent since 12AM today
+    func todaysDates(dates: [String]) -> [String] {
+        
+        let datesAsStringArray = dates
+        var convertedArrayAsTypeDate: [Date] = []
+        var convertedArrayAsTypeString: [String] = []
+        var arrayOfLastSevenDays = [Date]()
+        
+        // Converts strings to dates
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        for date in datesAsStringArray {
+            let date = dateFormatter.date(from: date)
+            if let date = date {
+                convertedArrayAsTypeDate.append(date)
+            }
+        }
+        
+        // Find calories only from today
+        let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1}
+        var index = keysAsDates.count - 1
+        let currentDate = Date()
+        let cal = Calendar(identifier: .gregorian)
+        let beginningOfCurrentDay = cal.startOfDay(for: currentDate)
+        print("\n\nBeginning of current day: \(beginningOfCurrentDay)\n\n")
+        print("Current Date: \(currentDate)")
+        
+        while index > -1 {
+            print("Index \(index): \(convertedArrayAsTypeDate[index])")
+            if convertedArrayAsTypeDate[index] > beginningOfCurrentDay {
+                arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
+            }
+            index -= 1
+            print("Index decremented to: \(index)")
+        }
+        
+        for date in arrayOfLastSevenDays {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+            let convdate = dateFormatter.string(from: date)
+            convertedArrayAsTypeString.append(convdate)
+        }
+        
+        print(convertedArrayAsTypeString)
+        return convertedArrayAsTypeString
+        
+    }
+    
+    // Removes duplicates from the array of dates and provides a String array of dates
     func organizeDatesOldestToNewest() -> [String] {
         var convertedArray: [Date] = []
         
-        var dateFormatter = DateFormatter()
+        // Converts strings to dates
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
-        
-        for date in self.array {
+        for date in self.keyDateArray {
             let date = dateFormatter.date(from: date)
             if let date = date {
                 convertedArray.append(date)
             }
         }
         
+        var datesOrderedByAscending = self.keyDateArray.sorted(by: {$0.compare($1) == .orderedAscending})
         
-        var datesOrderedByAscending = self.array.sorted(by: {$0.compare($1) == .orderedAscending})
-     
         // REMOVE DATE REPEATS
         // First while loop sets a base value and increments through the 'datesOrderedByAscending' array when the second while loop completes
         // Second while loop iterates over every date in the 'datesOrderedByAscending' array, if no matching date is found it it sets noMatchingDates to true which allows the while loop to increment to the next date in the array to compare the base date. If a matching date is found, it is removed from the array.
-     
+        
         var index = 0
         
         while index < datesOrderedByAscending.count {
@@ -123,7 +266,7 @@ class ViewController: UIViewController {
             while index_2 < datesOrderedByAscending.count { // what's going on here: if index2 is less than the number of dates
                 var noMatchingDates = false
                 if baseDate == datesOrderedByAscending[index_2] {
-                  //  print("Index: \(index) Base Value: \(baseValue), Pending: \(datesOrderedByAscending[index_2])")
+                    //  print("Index: \(index) Base Value: \(baseValue), Pending: \(datesOrderedByAscending[index_2])")
                     datesOrderedByAscending.remove(at: index_2)
                 } else {
                     noMatchingDates = true
@@ -139,119 +282,118 @@ class ViewController: UIViewController {
         return(datesOrderedByAscending)
     }
     
-    func analyzeCalorieData(dates: [String]) {
-        var calorieArray = [String]()
-        let dates = dates
+    func pullCaloriesFromFirebase() {
+        let lastSevenDaysOfKeys = lastSevenDates(dates: organizeDatesOldestToNewest())
+        let todaysCalorieKeys = todaysDates(dates: organizeDatesOldestToNewest())
+        let cacheKeys = findEndOfDayCacheLimit(dates: organizeDatesOldestToNewest())
+        
+        print("Calorie Keys for Today: \(todaysCalorieKeys)")
+        var lastSevenDaysOfCaloriesAsIntArray = [Int]()
+        var lastSevenDaysOfCalorieLimitsAsIntArray = [Int]()
+        var todayCaloriesAsIntArray = [Int]()
+        var sevenDayCalorieLimitArray = [Int]()
         var index = 0
+        var indexToday = 0
         var dictData = [String:Any]()
         let ref = Database.database().reference().child("jacksavagery")
         
         
-        
+        // Start observing firebase values
         ref.observe(.value, with: { (snapshot) in
-            // print("\n\(snapshot.value!)\n")
             dictData = snapshot.value as! [String:Any]
-            while index < dates.count {
-                let date = dates[index]
-                if let avalla = dictData[date] as? [String:Any] {
-                    //print(" HERE IS THE AVALLA: \n\n\(avalla)\n\n")
-                    let vail = avalla
-                    if let availluh = vail as? [String:String] {
-                        let duvail = availluh
-                        if let bvalli = duvail["calorieEntry"] {
-                            let ventaes = bvalli
-                            calorieArray.append(ventaes)
+            
+             // Find last seven days worth of calories
+            while index < lastSevenDaysOfKeys.count {
+                let date = lastSevenDaysOfKeys[index]
+                if let valuesStoredInDict = dictData[date] as? [String:Any] {
+                    let dictValsForDate = valuesStoredInDict
+                    if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
+                        let valueforDate = dictValsSortedAsDict
+                        if let caloriesFromDictForDate = valueforDate["calorieEntry"] {
+                            let calorieAsString = caloriesFromDictForDate
+                            if calorieAsString != "" {
+                                let intCal = Int(calorieAsString)
+                                lastSevenDaysOfCaloriesAsIntArray.append(intCal!)
+                            }
                         }
                     }
                 }
-               // print("\n\n\n I PRESENT THE SAUCE: \(calorieArray) \n\n\n")
+                
                 index += 1
             }
-        print("\n\n\n I PRESENT THE SAUCE: \(calorieArray) \n\n\n")
-        })
-        
-        
-        
-        
-    }
-
-    
-    func themResults(thems: [String]) {
-        var calAsNum = 0
-        var totalCals = 0
-        var numCalArray = [Int]()
-        for calorie in thems {
-            if calorie != "" {
-                calAsNum = Int(calorie)!
-                numCalArray.append(calAsNum)
+            let sevenDayCalTotal = lastSevenDaysOfCaloriesAsIntArray.reduce(0,+)
+            self.calories = lastSevenDaysOfCaloriesAsIntArray
+            print("\n\n\n The last seven days worth of calories: \(sevenDayCalTotal) \n\n\n")
+            self.passedCaloriesArray(thems: lastSevenDaysOfCaloriesAsIntArray)
+            
+            // Find Today's Calories
+            while indexToday < todaysCalorieKeys.count {
+                let date = todaysCalorieKeys[indexToday]
+                if let valuesStoredInDict = dictData[date] as? [String:Any] {
+                    let dictValsForDate = valuesStoredInDict
+                    if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
+                        let valueforDate = dictValsSortedAsDict
+                        if let caloriesFromDictForDate = valueforDate["calorieEntry"] {
+                            let calorieAsString = caloriesFromDictForDate
+                            if calorieAsString != "" {
+                                let intCal = Int(calorieAsString)
+                                todayCaloriesAsIntArray.append(intCal!)
+                            }
+                        }
+                    }
+                }
+                
+                indexToday += 1
             }
-        }
-     // print("Thems results: \(numCalArray)")
+            
+            let todayCalTotal = todayCaloriesAsIntArray.reduce(0,+)
+            self.calories = todayCaloriesAsIntArray
+            print("\n\n\n Today's spent calories: \(todayCalTotal) \n\n\n")
+            self.displayTotalSpent(caloriesSpent: todayCalTotal)
+ /////////////////////////////////////////////////////////////////////////////////////////////////
+           
+            // Find Last Seven Days of cache limit
+            while index < lastSevenDaysOfKeys.count {
+                let date = lastSevenDaysOfKeys[index]
+                if let valuesStoredInDict = dictData[date] as? [String:Any] {
+                    let dictValsForDate = valuesStoredInDict
+                    if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
+                        let valueforDate = dictValsSortedAsDict
+                        if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
+                            let calorieLimitAsString = calorieLimitFromDictForDate
+                            if calorieLimitAsString != "" {
+                                let calLimit = Int(calorieLimitAsString)
+                                lastSevenDaysOfCalorieLimitsAsIntArray.append(calLimit!)
+                            }
+                        }
+                    }
+                }
+                
+                index += 1
+            }
+            let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
+            self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
+            print("\n\n\n The last seven days worth of calories: \(sevenDayCalLimitTotal) \n\n\n")
+           // self.passedCaloriesArray(thems: lastSevenDaysOfCalorieLimitsAsIntArray)
+        })
+    }
+    
+    
+    func passedCaloriesArray(thems: [Int]) {
+        self.calories = thems
+        print("THE CALORIES: \(self.calories)")
         
-        for x in numCalArray {
-            totalCals += x
-        }
-       // print("TOTAL CALORIES EVAR: \(totalCals)")
-        self.totalCals = totalCals
-       // print("FROM THE TOP: \(self.totalCals)")
     }
     
-
- 
-    
-    func displayTotalSpent() {
-        spent.text = String(self.totalCals)
+    func displayTotalSpent(caloriesSpent today: Int) {
+        spent.text = String(today)
     }
-
     
+    func displayCacheValue(calorieLimitTotal: Int, calorieSpentTotal: Int) {
+        let limit = calorieLimitTotal
+        let spent = calorieSpentTotal
+        let cache = limit - spent
+        
+    }
 }
-
-
-/* ---------------- Working Code that pulls out single entry ----------------------
- // Fetch Data
- var dictData = [String:Any]()
- let ref = Database.database().reference()
- ref.observe(.childAdded, with: { (snapshot) in
- //  print(snapshot.value!)
- dictData = snapshot.value as! [String:Any]
- if let avalla = dictData["Sep 12, 2018 07:46:15"] as? [String:Any] {
- let vail = avalla
- if let availluh = vail as? [String:String] {
- let duvail = availluh
- if let bvalli = duvail["calorieEntry"] {
- let ventaes = bvalli
- //     print("\n\n HERE IT IS: \(ventaes) \n\n\n\n")
- }
- }
- }
- 
- 
- // let ahvailla = avalla?["calorieEntry"] as? [String:String]
- 
- })
- let value = ref.child("jacksavagery").childByAutoId().description()
- print("\n\n\n\n\(value)\n\n\n\n\n")
- */ // ----------------------- END WORKING CODE -------------------------------------
-
-// Primary Data Collector
-//        Database.database().reference().child("jacksavagery").observe(.value) { snapshot in
-//            if let datas = snapshot.children.allObjects as? [DataSnapshot] {
-//                let caloriesArray = datas.compactMap({ // was .flatMap
-//                    ($0.value as! [String: String])["calorieEntry"]
-//                })
-//
-//                let dates = datas.compactMap({
-//                    ($0.value as! [String: String])["dateTime"]
-//                })
-//
-//
-//                let alternativeResults = datas.last
-//                print("HERE'S WHAT YOU'RE LOOKING FUR \(dates)")
-//              //  print("here are the results: \(results)")
-//                self.themResults(thems: caloriesArray)
-//                self.calories = caloriesArray
-//                self.displayTotalSpent()
-//
-//            }
-//        }
 
