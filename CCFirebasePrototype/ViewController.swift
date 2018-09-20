@@ -25,6 +25,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var foodDescription: UITextField!
     @IBOutlet weak var spent: UILabel!
     @IBOutlet weak var cache: UILabel!
+    @IBOutlet weak var remaining: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -138,11 +139,12 @@ class ViewController: UIViewController {
     }
     
     // Find keys for each day's last calorie entry which includes the user's final calorie limit setting for that day
-    func findEndOfDayCacheLimit(dates: [String]) -> [String] {
+    func findEndOfDayCalLimit(dates: [String]) -> [String] {
         let datesAsStringArray = dates
         var convertedArrayAsTypeDate: [Date] = []
         var convertedArrayAsTypeString: [String] = []
-        var arrayOfLastSevenDays = [Date]()
+       // var arrayOfLastSevenDays = [Date]()
+        var arrayOfLastSevenCalLimitKeys = [Date]()
         
         // Converts strings to dates
         let dateFormatter = DateFormatter()
@@ -154,29 +156,37 @@ class ViewController: UIViewController {
             }
         }
         
-        let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1}
+        let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1} // orders dates least to greatest
         print("This is the order of the dates \(keysAsDates)")
         var index = keysAsDates.count - 1
-        let currentDate = Date()
-        let sevenDaysAgo = Date() - 7
         
-        // poentiall use the following:
-        /*
- 
-         https://classictutorials.com/2015/07/how-to-get-current-day-month-and-year-in-nsdate-using-swift/
-         
-        */
-        // Find the last date in the day by comparing it to the next date, if the day does not match, append, else continue.
-        // 1. pull the day from
         
+        
+        
+        // dates being comapaired need to be the actual day.
+        var valueA = Date()
+        var valueB = Date()
+       
         while index > -1 {
-            if convertedArrayAsTypeDate[index] > sevenDaysAgo {
-                arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
+            valueA = keysAsDates[index]
+            if index - 1 ==  -1 {
+                break
+            } else {
+                valueB = keysAsDates[index - 1]
+                let valueA_Day = Calendar.current.component(.day, from: valueA)
+                let valueB_Day = Calendar.current.component(.day, from: valueB)
+                print("COMPARING A: \(valueA_Day) B: \(valueB_Day)")
+                if index + 1 == keysAsDates.count { // captures key for the most recent calorie entry
+                    arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                } else if valueA_Day != valueB_Day {
+                    arrayOfLastSevenCalLimitKeys.append(keysAsDates[index]) // what index?
+                }
             }
             index -= 1
         }
+        print("Keys for end limits: \(arrayOfLastSevenCalLimitKeys)")
         
-        for date in keysAsDates {
+        for date in arrayOfLastSevenCalLimitKeys {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
             let convdate = dateFormatter.string(from: date)
@@ -184,9 +194,8 @@ class ViewController: UIViewController {
         }
         
         
-        
-        let strang = [""]
-        return strang
+     
+        return convertedArrayAsTypeString
     }
     
     
@@ -285,7 +294,10 @@ class ViewController: UIViewController {
     func pullCaloriesFromFirebase() {
         let lastSevenDaysOfKeys = lastSevenDates(dates: organizeDatesOldestToNewest())
         let todaysCalorieKeys = todaysDates(dates: organizeDatesOldestToNewest())
-        let cacheKeys = findEndOfDayCacheLimit(dates: organizeDatesOldestToNewest())
+        let arrayOfCalorieLimits = findEndOfDayCalLimit(dates: organizeDatesOldestToNewest())
+        let lastCalorieLimitEntry = arrayOfCalorieLimits.count - 1
+        var lastCalLimitEntry = 0
+        
         
         print("Calorie Keys for Today: \(todaysCalorieKeys)")
         var lastSevenDaysOfCaloriesAsIntArray = [Int]()
@@ -294,6 +306,7 @@ class ViewController: UIViewController {
         var sevenDayCalorieLimitArray = [Int]()
         var index = 0
         var indexToday = 0
+        var indexCalorieLimit = 0
         var dictData = [String:Any]()
         let ref = Database.database().reference().child("jacksavagery")
         
@@ -350,11 +363,11 @@ class ViewController: UIViewController {
             self.calories = todayCaloriesAsIntArray
             print("\n\n\n Today's spent calories: \(todayCalTotal) \n\n\n")
             self.displayTotalSpent(caloriesSpent: todayCalTotal)
- /////////////////////////////////////////////////////////////////////////////////////////////////
+            
            
-            // Find Last Seven Days of cache limit
-            while index < lastSevenDaysOfKeys.count {
-                let date = lastSevenDaysOfKeys[index]
+            // Find Last Seven Days of calorie limits
+            while indexCalorieLimit < arrayOfCalorieLimits.count {
+                let date = arrayOfCalorieLimits[indexCalorieLimit]
                 if let valuesStoredInDict = dictData[date] as? [String:Any] {
                     let dictValsForDate = valuesStoredInDict
                     if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
@@ -369,12 +382,30 @@ class ViewController: UIViewController {
                     }
                 }
                 
-                index += 1
+                indexCalorieLimit += 1
             }
+            
+            // Find Last Calorie Limit Setting
+            let date = arrayOfCalorieLimits[lastCalorieLimitEntry]
+            if let valuesStoredInDict = dictData[date] as? [String:Any] {
+                let dictValsForDate = valuesStoredInDict
+                if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
+                    let valueforDate = dictValsSortedAsDict
+                    if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
+                        let calorieLimitAsString = calorieLimitFromDictForDate
+                        if calorieLimitAsString != "" {
+                            lastCalLimitEntry = Int(calorieLimitAsString)!
+                        }
+                    }
+                }
+            }
+            
+            
             let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
-            print("\n\n\n The last seven days worth of calories: \(sevenDayCalLimitTotal) \n\n\n")
-           // self.passedCaloriesArray(thems: lastSevenDaysOfCalorieLimitsAsIntArray)
+            print("\n\n\n The last seven calorie limit: \(sevenDayCalLimitTotal) \n\n\n")
+            self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: todayCalTotal, lastCalorieLimit: lastCalLimitEntry)
+            
         })
     }
     
@@ -389,10 +420,21 @@ class ViewController: UIViewController {
         spent.text = String(today)
     }
     
-    func displayCacheValue(calorieLimitTotal: Int, calorieSpentTotal: Int) {
+    func displayCacheValue(caloriesSpent: Int, calorieLimitTotal: Int, calorieSpentTotal: Int, lastCalorieLimit: Int) {
         let limit = calorieLimitTotal
         let spent = calorieSpentTotal
+        let lastLimitSetting = lastCalorieLimit
         let cache = limit - spent
+        let todayCaloriesSpent = caloriesSpent
+        let todayRemaining = lastLimitSetting - todayCaloriesSpent
+        self.cache.text = String(cache)
+        self.remaining.text = String(todayRemaining)
+
+        // Set value of remaining and spent to zero at midnight and stays until user enters new value.
+        // Create function that erases data after so many days of no calorie entries.
+        // create placeholder zero calorie entry for when the user misses a day.
+        // Create function that checks how many days between opening the app the last time.
+        
         
     }
 }

@@ -148,6 +148,7 @@
                         <outlet property="cache" destination="uQt-hO-Vci" id="Te8-im-gum"/>
                         <outlet property="calorieTextBox" destination="XdK-qb-r9T" id="k40-bn-wBC"/>
                         <outlet property="foodDescription" destination="SM9-uS-Lb3" id="ldC-xA-LbV"/>
+                        <outlet property="remaining" destination="MeN-AT-SaL" id="25H-Zz-twd"/>
                         <outlet property="spent" destination="cxQ-JK-Dwa" id="0JN-RF-CqK"/>
                     </connections>
                 </viewController>
