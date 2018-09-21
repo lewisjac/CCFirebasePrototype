@@ -5,6 +5,16 @@
 //  Created by Jack Simmons on 9/3/18.
 //  Copyright © 2018 Jack Simmons. All rights reserved.
 //
+//
+//
+//
+// REMOVE SWEET REFERENCE!
+//
+//
+//
+//
+//
+//
 
 import UIKit
 import Firebase
@@ -14,7 +24,7 @@ class ViewController: UIViewController {
     
     var dbRef: DatabaseReference!
     var totalCals: Int = 0
-    var entries = [CalorieEntry]()
+    var entries = [UserEntry]()
     var calories = [Int]()
     var dates = [Date]()
     var totalSpentCals: Int = 0
@@ -27,6 +37,29 @@ class ViewController: UIViewController {
     @IBOutlet weak var cache: UILabel!
     @IBOutlet weak var remaining: UILabel!
     
+    @IBAction func calorieValueChanged(_ sender: UITextField) {
+        if let last = sender.text?.last {
+            let zero: Character = "0"
+            let num: Int = Int(UnicodeScalar(String(last))!.value - UnicodeScalar(String(zero))!.value)
+            if (num < 0 || num > 9) {
+                //remove the last character as it is invalid
+                sender.text?.removeLast()
+            }
+        }
+    }
+    
+    @IBAction func diaryButton(_ sender: UIButton) {
+//        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+//
+//        let nextViewController = storyBoard.instantiateViewController(withIdentifier: "secondStoryboardId") as! UITableViewController
+//        self.present(nextViewController, animated:true, completion:nil)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let diaryView = storyboard.instantiateViewController(withIdentifier: "TableVC") as! UITableViewController
+        self.navigationController?.pushViewController(diaryView, animated: true)
+
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
@@ -38,10 +71,10 @@ class ViewController: UIViewController {
     
     func startObservingDB() {
         dbRef.observe(.value, with: {(snapshot: DataSnapshot) in
-            var newSweets = [CalorieEntry]()
+            var newSweets = [UserEntry]()
             
             for sweet in snapshot.children {
-                let sweetObject = CalorieEntry(snapshot: sweet as! DataSnapshot)
+                let sweetObject = UserEntry(snapshot: sweet as! DataSnapshot)
                 newSweets.append(sweetObject)
             }
             
@@ -54,26 +87,52 @@ class ViewController: UIViewController {
     }
     
     
-    
+    // add functionality that blocks the user from:
+    // 1. entering anything other than numbers into calories
+    // 2. not entering anything.
     @IBAction func addCalories(_ sender: UIButton) {
         let date = Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let now = formatter.string(from: date)
-        let userEnteredCalories = calorieTextBox.text
+        var userCalories = ""
+        if let userEnteredCalories = calorieTextBox.text {
+            userCalories = userEnteredCalories
+        }
         var food = ""
         if let desc = foodDescription.text {
             food = desc
         }
+
         
-        if let sweetContent = userEnteredCalories {
-            let sweet = CalorieEntry(calories: sweetContent, description: food, dateTime: now, calorieLimit: "2500")// this creates a sweet object we can pass along to firebase
-            let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
-            sweetRef.setValue(sweet.toAnyObject())
+        
+//        let customSet: CharacterSet = ["~","!","@","#","$","%","^","&","*","(",")","_","-","+","=","["]
+//        let finalSet = CharacterSet.letters.union(customSet)
+//        print(finalSet.isSuperset(of: CharacterSet(charactersIn: userCalories)))
+//        print(CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)))
+        if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
+            let alert = UIAlertController(title: "Alert", message: "Message", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {action in
+                switch action.style {
+                case .default:
+                    print("default")
+                case .cancel:
+                    print("cancel")
+                case .destructive:
+                    print("destructive")
+                }
+            }))
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            if let userEntry = calorieTextBox.text {
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: "2500")// this creates a sweet object we can pass along to firebase
+                let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
+                sweetRef.setValue(sweet.toAnyObject())
+            }
+            
+            calorieTextBox.text = ""
+            foodDescription.text = ""
         }
-        
-        calorieTextBox.text = ""
-        foodDescription.text = ""
     }
     
     
@@ -324,7 +383,7 @@ class ViewController: UIViewController {
                         let valueforDate = dictValsSortedAsDict
                         if let caloriesFromDictForDate = valueforDate["calorieEntry"] {
                             let calorieAsString = caloriesFromDictForDate
-                            if calorieAsString != "" {
+                            if calorieAsString != "" && calorieAsString != "lk" {
                                 let intCal = Int(calorieAsString)
                                 lastSevenDaysOfCaloriesAsIntArray.append(intCal!)
                             }
@@ -348,7 +407,7 @@ class ViewController: UIViewController {
                         let valueforDate = dictValsSortedAsDict
                         if let caloriesFromDictForDate = valueforDate["calorieEntry"] {
                             let calorieAsString = caloriesFromDictForDate
-                            if calorieAsString != "" {
+                            if calorieAsString != "" && calorieAsString != "lk" {
                                 let intCal = Int(calorieAsString)
                                 todayCaloriesAsIntArray.append(intCal!)
                             }
@@ -374,7 +433,7 @@ class ViewController: UIViewController {
                         let valueforDate = dictValsSortedAsDict
                         if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
                             let calorieLimitAsString = calorieLimitFromDictForDate
-                            if calorieLimitAsString != "" {
+                            if calorieLimitAsString != "" && calorieLimitAsString != "lk" {
                                 let calLimit = Int(calorieLimitAsString)
                                 lastSevenDaysOfCalorieLimitsAsIntArray.append(calLimit!)
                             }
@@ -393,7 +452,7 @@ class ViewController: UIViewController {
                     let valueforDate = dictValsSortedAsDict
                     if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
                         let calorieLimitAsString = calorieLimitFromDictForDate
-                        if calorieLimitAsString != "" {
+                        if calorieLimitAsString != "" && calorieLimitAsString != "lk" {
                             lastCalLimitEntry = Int(calorieLimitAsString)!
                         }
                     }
