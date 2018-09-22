@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseDatabase
 
-struct CalorieEntry {
+struct UserEntry {
     let key: String?
     let calories: String?
     let dateTime: String?
