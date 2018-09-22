@@ -70,11 +70,11 @@ class TableVC: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let entry = userEntries[indexPath.row] // would this pass an actual reference
-        
+        EditVC(ref: entry)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let nextView = storyboard.instantiateViewController(withIdentifier: "EditVC") as! EditVC
         self.navigationController?.pushViewController(nextView, animated: true)
-        EditVC(ref: entry)
+       
         
 
         

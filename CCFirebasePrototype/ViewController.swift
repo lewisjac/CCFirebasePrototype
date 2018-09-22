@@ -100,11 +100,6 @@ class ViewController: UIViewController {
         }
 
         
-        
-//        let customSet: CharacterSet = ["~","!","@","#","$","%","^","&","*","(",")","_","-","+","=","["]
-//        let finalSet = CharacterSet.letters.union(customSet)
-//        print(finalSet.isSuperset(of: CharacterSet(charactersIn: userCalories)))
-//        print(CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)))
         if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
             let alert = UIAlertController(title: "Alert", message: "Message", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {action in
@@ -458,7 +453,7 @@ class ViewController: UIViewController {
             let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
             print("\n\n\n The last seven calorie limit: \(sevenDayCalLimitTotal) \n\n\n")
-            self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: todayCalTotal, lastCalorieLimit: lastCalLimitEntry)
+            self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: sevenDayCalTotal, lastCalorieLimit: lastCalLimitEntry)
             
         })
     }
@@ -474,6 +469,7 @@ class ViewController: UIViewController {
         spent.text = String(today)
     }
     
+    // Cached values are only updating based on todays values when edited in diary.
     func displayCacheValue(caloriesSpent: Int, calorieLimitTotal: Int, calorieSpentTotal: Int, lastCalorieLimit: Int) {
         let limit = calorieLimitTotal
         let spent = calorieSpentTotal

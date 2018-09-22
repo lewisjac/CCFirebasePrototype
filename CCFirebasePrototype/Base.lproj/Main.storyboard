@@ -326,9 +326,6 @@
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="numberPad"/>
-                                <connections>
-                                    <action selector="calorieValueChanged:" destination="BYZ-38-t0r" eventType="editingChanged" id="mUv-zl-zsA"/>
-                                </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="22" translatesAutoresizingMaskIntoConstraints="NO" id="XXi-nd-QET">
                                 <rect key="frame" x="162" y="187" width="177" height="32"/>
@@ -367,7 +364,9 @@
                         <viewLayoutGuide key="safeArea" id="4Zr-m1-t5u"/>
                     </view>
                     <connections>
+                        <outlet property="calorieEntry" destination="uBV-TA-iDe" id="7IP-Gb-GbG"/>
                         <outlet property="datePicker" destination="PjQ-6l-YEK" id="3Dr-pB-XIw"/>
+                        <outlet property="desc" destination="XXi-nd-QET" id="aUX-ta-iLy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="y21-bA-mfK" userLabel="First Responder" sceneMemberID="firstResponder"/>
