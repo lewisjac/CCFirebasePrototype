@@ -11,6 +11,8 @@
 		931A5BF0C085BB6A255D22BD /* Pods_CCFirebasePrototypeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553FEF1E3ADE72BBBE1E3B60 /* Pods_CCFirebasePrototypeUITests.framework */; };
 		B121629E213DB17700CA5DB2 /* UserEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B121629D213DB17700CA5DB2 /* UserEntry.swift */; };
 		B12B6F5F2153FDE400E3E2B4 /* TableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B6F5E2153FDE400E3E2B4 /* TableVC.swift */; };
+		B139C13721559B15006F3AB5 /* EditVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B139C13621559B15006F3AB5 /* EditVC.swift */; };
+		B139C1392156D573006F3AB5 /* TestOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B139C1382156D573006F3AB5 /* TestOnly.swift */; };
 		B17386BF213DA41D00EB30A6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17386BE213DA41D00EB30A6 /* AppDelegate.swift */; };
 		B17386C1213DA41D00EB30A6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17386C0213DA41D00EB30A6 /* ViewController.swift */; };
 		B17386C4213DA41D00EB30A6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B17386C2213DA41D00EB30A6 /* Main.storyboard */; };
@@ -51,6 +53,8 @@
 		9B08C30950E0B57C2D7D49E9 /* Pods_CCFirebasePrototype.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CCFirebasePrototype.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B121629D213DB17700CA5DB2 /* UserEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEntry.swift; sourceTree = "<group>"; };
 		B12B6F5E2153FDE400E3E2B4 /* TableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableVC.swift; sourceTree = "<group>"; };
+		B139C13621559B15006F3AB5 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
+		B139C1382156D573006F3AB5 /* TestOnly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestOnly.swift; sourceTree = "<group>"; };
 		B17386BB213DA41D00EB30A6 /* CCFirebasePrototype.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCFirebasePrototype.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B17386BE213DA41D00EB30A6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B17386C0213DA41D00EB30A6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -142,15 +146,17 @@
 			isa = PBXGroup;
 			children = (
 				B17386BE213DA41D00EB30A6 /* AppDelegate.swift */,
-				B12B6F5E2153FDE400E3E2B4 /* TableVC.swift */,
-				B1B90C6821554BF500AE0710 /* EntryCell.swift */,
 				B17386C0213DA41D00EB30A6 /* ViewController.swift */,
+				B12B6F5E2153FDE400E3E2B4 /* TableVC.swift */,
+				B139C13621559B15006F3AB5 /* EditVC.swift */,
+				B1B90C6821554BF500AE0710 /* EntryCell.swift */,
 				B121629D213DB17700CA5DB2 /* UserEntry.swift */,
 				B17386C2213DA41D00EB30A6 /* Main.storyboard */,
 				B17386C5213DA41E00EB30A6 /* Assets.xcassets */,
 				B17386C7213DA41E00EB30A6 /* LaunchScreen.storyboard */,
 				B17386CA213DA41E00EB30A6 /* Info.plist */,
 				B17386EE213DA5B800EB30A6 /* GoogleService-Info.plist */,
+				B139C1382156D573006F3AB5 /* TestOnly.swift */,
 			);
 			path = CCFirebasePrototype;
 			sourceTree = "<group>";
@@ -402,10 +408,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B139C1392156D573006F3AB5 /* TestOnly.swift in Sources */,
 				B121629E213DB17700CA5DB2 /* UserEntry.swift in Sources */,
 				B1B90C6921554BF500AE0710 /* EntryCell.swift in Sources */,
 				B12B6F5F2153FDE400E3E2B4 /* TableVC.swift in Sources */,
 				B17386C1213DA41D00EB30A6 /* ViewController.swift in Sources */,
+				B139C13721559B15006F3AB5 /* EditVC.swift in Sources */,
 				B17386BF213DA41D00EB30A6 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

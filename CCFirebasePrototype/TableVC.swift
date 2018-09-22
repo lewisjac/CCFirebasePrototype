@@ -12,8 +12,9 @@ import FirebaseDatabase
 import FirebaseAuth
 
 class TableVC: UITableViewController {
-    var ref: DatabaseReference! // change to var ref
+    var ref: DatabaseReference!
     var userEntries = [UserEntry]()
+    
 
    
     override func viewDidLoad() {
@@ -59,7 +60,25 @@ class TableVC: UITableViewController {
         return cell
     }
     
-    @IBAction func backButton(_ sender: UIButton) {
-        self.navigationController?.popViewController(animated: true)
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let entry = userEntries[indexPath.row] // would this pass an actual referenc
+            
+            entry.itemRef?.removeValue()
+        }
     }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let entry = userEntries[indexPath.row] // would this pass an actual reference
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let nextView = storyboard.instantiateViewController(withIdentifier: "EditVC") as! EditVC
+        self.navigationController?.pushViewController(nextView, animated: true)
+        EditVC(ref: entry)
+        
+
+        
+    }
+    
+
 }

@@ -49,11 +49,6 @@ class ViewController: UIViewController {
     }
     
     @IBAction func diaryButton(_ sender: UIButton) {
-//        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-//
-//        let nextViewController = storyBoard.instantiateViewController(withIdentifier: "secondStoryboardId") as! UITableViewController
-//        self.present(nextViewController, animated:true, completion:nil)
-        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let diaryView = storyboard.instantiateViewController(withIdentifier: "TableVC") as! UITableViewController
         self.navigationController?.pushViewController(diaryView, animated: true)
