@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.94821"
+            timestampString = "559364983.18016"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "471"
-            endingLineNumber = "471"
+            startingLineNumber = "454"
+            endingLineNumber = "454"
             landmarkName = "pullCaloriesFromFirebase()"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.948312"
+            timestampString = "559364983.18063"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "239"
-            endingLineNumber = "239"
+            startingLineNumber = "221"
+            endingLineNumber = "221"
             landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.948391"
+            timestampString = "559364983.180714"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "240"
-            endingLineNumber = "240"
+            startingLineNumber = "222"
+            endingLineNumber = "222"
             landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.948458"
+            timestampString = "559364983.180791"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
+            startingLineNumber = "223"
+            endingLineNumber = "223"
             landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.948522"
+            timestampString = "559364983.180866"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
+            startingLineNumber = "212"
+            endingLineNumber = "212"
             landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559362600.948585"
+            timestampString = "559364983.180936"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "232"
-            endingLineNumber = "232"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
             landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>

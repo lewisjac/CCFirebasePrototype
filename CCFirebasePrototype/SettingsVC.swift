@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import Firebase
 import UIKit
 
 class SettingsVC: UIViewController {
+    var ref = Database.database().reference()
+    var reference: DatabaseReference!
     @IBOutlet weak var calorieLimit: UITextField?
     
     override func viewDidLoad() {
@@ -23,7 +26,14 @@ class SettingsVC: UIViewController {
     
     func updateCalorieLimit() {
         let calLimit = calorieLimit?.text
-        UserDefaults.standard.set(calLimit, forKey: "calorieLimit") 
+        UserDefaults.standard.set(calLimit, forKey: "calorieLimit")
+        
+        ref.root.child("jacksavagery").childByAutoId().observeSingleEvent(of: .value, with: { (snapshot) in
+            print(snapshot)
+           
+        }) { (error) in
+            print(error.localizedDescription)
+        }
     }
 }
 

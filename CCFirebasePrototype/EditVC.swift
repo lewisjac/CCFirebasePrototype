@@ -79,24 +79,13 @@ class EditVC: UIViewController {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let date = dateFormatter.string(from: (datePicker?.date)!)
-
         let key = UserDefaults.standard.string(forKey: "key") ?? ""
-        print("Here is the key: \(key)")
-        let post = ["calorieEntry" : calorieEntry?.text! ?? "",
-                    "calorieLimit" : "1000",
-                    "dateTime" : date,
-                    "description" : desc?.text! ?? ""
-            ] as [String : String]
-
-        let childUpdates = post
-        print("CHILDUPDATES: \(childUpdates)")
-
+        let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
         Database.database().reference().root.child("jacksavagery").child(key).updateChildValues(["calorieEntry" : calorieEntry?.text! ?? "",
-                                                                                                 "calorieLimit" : "1000",
+                                                                                                 "calorieLimit" : pulledCalorieLimit,
                                                                                                  "dateTime" : date,
                                                                                                  "description" : desc?.text! ?? ""
             ])
-
     }
     
     override func viewWillDisappear(_ animated: Bool) {

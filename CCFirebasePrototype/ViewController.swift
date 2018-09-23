@@ -67,25 +67,6 @@ class ViewController: UIViewController {
         Database.database().isPersistenceEnabled = true
         self.dbRef = Database.database().reference().child("jacksavagery")
         pullKeysFromFirebase()
-        
-    }
-    
-    
-    func startObservingDB() {
-        dbRef.observe(.value, with: {(snapshot: DataSnapshot) in
-            var newSweets = [UserEntry]()
-            
-            for sweet in snapshot.children {
-                let sweetObject = UserEntry(snapshot: sweet as! DataSnapshot)
-                newSweets.append(sweetObject)
-            }
-            
-            self.entries = newSweets
-            //  self.tableView.reloadData()
-            
-        }, withCancel: {(error: Error) in
-            print(error.localizedDescription)
-        })
     }
     
     
@@ -126,7 +107,8 @@ class ViewController: UIViewController {
             self.present(alert, animated: true, completion: nil)
         } else {
             if let userEntry = calorieTextBox.text {
-                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: "1000")// this creates a sweet object we can pass along to firebase
+                let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: pulledCalorieLimit)// this creates a sweet object we can pass along to firebase
                 let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
             }
@@ -450,25 +432,27 @@ class ViewController: UIViewController {
             }
             
             // Find Last Calorie Limit Setting
-            let date = arrayOfCalorieLimits[lastCalorieLimitEntry]
-            if let valuesStoredInDict = dictData[date] as? [String:Any] {
-                let dictValsForDate = valuesStoredInDict
-                if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
-                    let valueforDate = dictValsSortedAsDict
-                    if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
-                        let calorieLimitAsString = calorieLimitFromDictForDate
-                        if calorieLimitAsString != "" {
-                            lastCalLimitEntry = Int(calorieLimitAsString)!
-                        }
-                    }
-                }
-            }
-            
-            
+//            let date = arrayOfCalorieLimits[lastCalorieLimitEntry]
+//            if let valuesStoredInDict = dictData[date] as? [String:Any] {
+//                let dictValsForDate = valuesStoredInDict
+//                if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
+//                    let valueforDate = dictValsSortedAsDict
+//                    if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
+//                        let calorieLimitAsString = calorieLimitFromDictForDate
+//                        if calorieLimitAsString != "" {
+//                            lastCalLimitEntry = calLimitAsInt
+//                        }
+//                    }
+//                }
+//            }
+//
+            let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+            let calLimitAsInt = Int(pulledCalorieLimit)!
             let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
             print("\n\n\n The last seven calorie limit: \(sevenDayCalLimitTotal) \n\n\n")
-            self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: sevenDayCalTotal, lastCalorieLimit: lastCalLimitEntry)
+            self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: sevenDayCalTotal, lastCalorieLimit: calLimitAsInt)
+            
         })
     }
     
@@ -493,15 +477,18 @@ class ViewController: UIViewController {
         let spent = calorieSpentTotal
         let lastLimitSetting = lastCalorieLimit
         let todayCaloriesSpent = caloriesSpent
+        var todayRemaining = 0
         var cache = 0
+        let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+        let calLimitAsInt = Int(pulledCalorieLimit)!
         
         if todayCaloriesSpent == 0 {
-            cache = (limit + 1000) - spent // 2500 needs to be replaced with user entered limit.
+            cache = (limit + calLimitAsInt) - spent // 2500 needs to be replaced with user entered limit.
         } else {
             cache = limit - spent
         }
-        
-        let todayRemaining = lastLimitSetting - todayCaloriesSpent
+      
+        todayRemaining = calLimitAsInt - todayCaloriesSpent
         self.cache.text = String(cache)
         self.remaining.text = String(todayRemaining)
 
@@ -512,5 +499,7 @@ class ViewController: UIViewController {
         print(cache)
         
     }
+    
+
 }
 
