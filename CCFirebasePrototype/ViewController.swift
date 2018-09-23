@@ -55,6 +55,13 @@ class ViewController: UIViewController {
 
     }
     
+    @IBAction func settingsButton(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let nextView = storyboard.instantiateViewController(withIdentifier: "SettingsVC") as! SettingsVC
+        self.navigationController?.pushViewController(nextView, animated: true)
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
@@ -96,7 +103,11 @@ class ViewController: UIViewController {
         }
         var food = ""
         if let desc = foodDescription.text {
-            food = desc
+            if desc == "" {
+                food = "Nondescript food item"
+            } else {
+                food = desc
+            }
         }
 
         
@@ -115,7 +126,7 @@ class ViewController: UIViewController {
             self.present(alert, animated: true, completion: nil)
         } else {
             if let userEntry = calorieTextBox.text {
-                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: "2500")// this creates a sweet object we can pass along to firebase
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: "1000")// this creates a sweet object we can pass along to firebase
                 let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
             }
@@ -209,16 +220,20 @@ class ViewController: UIViewController {
         print("This is the order of the dates \(keysAsDates)")
         var index = keysAsDates.count - 1
         
-        
-        
-        
+    
         // dates being comapaired need to be the actual day.
         var valueA = Date()
         var valueB = Date()
-       
+        // if the index == 0 and index != index_1, append
         while index > -1 {
+            print(index)
             valueA = keysAsDates[index]
-            if index - 1 ==  -1 {
+            print("HERE IS VALUE A: \(valueA)")
+            if index == 0 {
+                if valueA != keysAsDates[index + 1] {
+                    arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                }
+            } else if index - 1 ==  -1 {
                 break
             } else {
                 valueB = keysAsDates[index - 1]
@@ -373,8 +388,8 @@ class ViewController: UIViewController {
                         let valueforDate = dictValsSortedAsDict
                         if let caloriesFromDictForDate = valueforDate["calorieEntry"] {
                             let calorieAsString = caloriesFromDictForDate
-                            if calorieAsString != "" && calorieAsString != "lk" {
-                                let intCal = Int(calorieAsString)
+                            if calorieAsString != "" {
+                                let intCal = Int(calorieAsString) //calorieAsString
                                 lastSevenDaysOfCaloriesAsIntArray.append(intCal!)
                             }
                         }
@@ -442,7 +457,7 @@ class ViewController: UIViewController {
                     let valueforDate = dictValsSortedAsDict
                     if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
                         let calorieLimitAsString = calorieLimitFromDictForDate
-                        if calorieLimitAsString != "" && calorieLimitAsString != "lk" {
+                        if calorieLimitAsString != "" {
                             lastCalLimitEntry = Int(calorieLimitAsString)!
                         }
                     }
@@ -454,7 +469,6 @@ class ViewController: UIViewController {
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
             print("\n\n\n The last seven calorie limit: \(sevenDayCalLimitTotal) \n\n\n")
             self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: sevenDayCalTotal, lastCalorieLimit: lastCalLimitEntry)
-            
         })
     }
     
@@ -471,11 +485,22 @@ class ViewController: UIViewController {
     
     // Cached values are only updating based on todays values when edited in diary.
     func displayCacheValue(caloriesSpent: Int, calorieLimitTotal: Int, calorieSpentTotal: Int, lastCalorieLimit: Int) {
+        // SET:  UserDefaults.standard.set(self.key, forKey: "key")
+        // GET: let key = UserDefaults.standard.string(forKey: "key") ?? ""
+        // Cache needs to update upon midnight to include new availble calories.
+        // if previous entry is from a a different day, enter false limit calories, else don't do anything.
         let limit = calorieLimitTotal
         let spent = calorieSpentTotal
         let lastLimitSetting = lastCalorieLimit
-        let cache = limit - spent
         let todayCaloriesSpent = caloriesSpent
+        var cache = 0
+        
+        if todayCaloriesSpent == 0 {
+            cache = (limit + 1000) - spent // 2500 needs to be replaced with user entered limit.
+        } else {
+            cache = limit - spent
+        }
+        
         let todayRemaining = lastLimitSetting - todayCaloriesSpent
         self.cache.text = String(cache)
         self.remaining.text = String(todayRemaining)
@@ -484,7 +509,7 @@ class ViewController: UIViewController {
         // Create function that erases data after so many days of no calorie entries.
         // create placeholder zero calorie entry for when the user misses a day.
         // Create function that checks how many days between opening the app the last time.
-        
+        print(cache)
         
     }
 }

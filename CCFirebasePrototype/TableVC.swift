@@ -19,6 +19,8 @@ class TableVC: UITableViewController {
    
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
         ref = Database.database().reference().child("jacksavagery") // change .child to reference user's login information.
         startObservingBD()
     }
@@ -56,11 +58,13 @@ class TableVC: UITableViewController {
         cell.calories?.text = entry.calories
         cell.desc?.text = entry.description
         cell.time?.text = entry.dateTime
+        cell.layoutMargins = UIEdgeInsets.zero
         
         return cell
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        
         if editingStyle == .delete {
             let entry = userEntries[indexPath.row] // would this pass an actual referenc
             
@@ -69,6 +73,7 @@ class TableVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         let entry = userEntries[indexPath.row] // would this pass an actual reference
         EditVC(ref: entry)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

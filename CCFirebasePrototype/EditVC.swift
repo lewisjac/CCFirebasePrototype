@@ -83,7 +83,7 @@ class EditVC: UIViewController {
         let key = UserDefaults.standard.string(forKey: "key") ?? ""
         print("Here is the key: \(key)")
         let post = ["calorieEntry" : calorieEntry?.text! ?? "",
-                    "calorieLimit" : "2500",
+                    "calorieLimit" : "1000",
                     "dateTime" : date,
                     "description" : desc?.text! ?? ""
             ] as [String : String]
@@ -92,7 +92,7 @@ class EditVC: UIViewController {
         print("CHILDUPDATES: \(childUpdates)")
 
         Database.database().reference().root.child("jacksavagery").child(key).updateChildValues(["calorieEntry" : calorieEntry?.text! ?? "",
-                                                                                                 "calorieLimit" : "2500",
+                                                                                                 "calorieLimit" : "1000",
                                                                                                  "dateTime" : date,
                                                                                                  "description" : desc?.text! ?? ""
             ])
