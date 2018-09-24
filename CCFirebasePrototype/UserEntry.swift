@@ -17,20 +17,20 @@
 import Foundation
 import FirebaseDatabase
 
-struct CalorieEntry {
+struct UserEntry {
     let key: String?
     let calories: String?
     let dateTime: String?
-    let addedByUser: String?
+    let calorieLimit: String?
     let description: String?
     let itemRef: DatabaseReference?
     
-    init(calories: String, description: String, dateTime: String, addedByUser: String, key: String = "") {
+    init(calories: String, description: String, dateTime: String, calorieLimit: String, key: String = "") {
         self.key = key
         self.calories = calories
         self.description = description
         self.dateTime = dateTime
-        self.addedByUser = addedByUser
+        self.calorieLimit = calorieLimit
         self.itemRef = nil
     }
     
@@ -44,10 +44,10 @@ struct CalorieEntry {
             calories = ""
         }
         
-        if let dict = snapshot.value as? NSDictionary, let cacheUser = dict["addedByUser"] as? String {
-            addedByUser = cacheUser
+        if let dict = snapshot.value as? NSDictionary, let calsLimit = dict["calorieLimit"] as? String {
+            calorieLimit = calsLimit
         } else {
-            addedByUser = ""
+            calorieLimit = ""
         }
         
         if let dict = snapshot.value as? NSDictionary, let dntOfEntry = dict["dateTime"] as? String {
@@ -65,7 +65,7 @@ struct CalorieEntry {
     }
     
     func toAnyObject() -> AnyObject {
-        let array = ["calorieEntry":calories, "description":description, "addedByUser":addedByUser, "dateTime":dateTime]
+        let array = ["calorieEntry":calories, "description":description, "calorieLimit":calorieLimit, "dateTime":dateTime]
         return array as AnyObject
     }
 }
