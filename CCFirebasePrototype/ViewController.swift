@@ -31,11 +31,12 @@ class ViewController: UIViewController {
     var numCalsArray = [Int]()
     var keyDateArray = [String]() // this array holds the keys which gain access to the values in the fb databse
     
-    @IBOutlet weak var calorieTextBox: UITextField!
-    @IBOutlet weak var foodDescription: UITextField!
-    @IBOutlet weak var spent: UILabel!
-    @IBOutlet weak var cache: UILabel!
-    @IBOutlet weak var remaining: UILabel!
+    @IBOutlet weak var calorieTextBox: UITextField?
+    @IBOutlet weak var foodDescription: UITextField?
+    @IBOutlet weak var spent: UILabel?
+    @IBOutlet weak var cache: UILabel?
+    @IBOutlet weak var remaining: UILabel?
+    @IBOutlet weak var dateTime: UIDatePicker?
     
     @IBAction func calorieValueChanged(_ sender: UITextField) {
         if let last = sender.text?.last {
@@ -78,12 +79,17 @@ class ViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let now = formatter.string(from: date)
+        var calEntryDate = ""
+        if let tempPickerDate = self.dateTime?.date {
+            calEntryDate = formatter.string(from: tempPickerDate)
+        }
+        print(calEntryDate)
         var userCalories = ""
-        if let userEnteredCalories = calorieTextBox.text {
+        if let userEnteredCalories = calorieTextBox?.text {
             userCalories = userEnteredCalories
         }
         var food = ""
-        if let desc = foodDescription.text {
+        if let desc = foodDescription?.text {
             if desc == "" {
                 food = "Nondescript food item"
             } else {
@@ -91,7 +97,7 @@ class ViewController: UIViewController {
             }
         }
 
-        
+        // prevent user's from entering 0 calories 
         if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
             let alert = UIAlertController(title: "Alert", message: "Message", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {action in
@@ -106,15 +112,15 @@ class ViewController: UIViewController {
             }))
             self.present(alert, animated: true, completion: nil)
         } else {
-            if let userEntry = calorieTextBox.text {
+            if let userEntry = calorieTextBox?.text {
                 let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
-                let sweet = UserEntry(calories: userEntry, description: food, dateTime: now, calorieLimit: pulledCalorieLimit)// this creates a sweet object we can pass along to firebase
-                let sweetRef = self.dbRef.child(now) // creates a reference for the sweet
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit)// this creates a sweet object we can pass along to firebase
+                let sweetRef = self.dbRef.child(calEntryDate) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
             }
             
-            calorieTextBox.text = ""
-            foodDescription.text = ""
+            calorieTextBox?.text = ""
+            foodDescription?.text = ""
         }
     }
     
@@ -187,6 +193,7 @@ class ViewController: UIViewController {
         var convertedArrayAsTypeString: [String] = []
        // var arrayOfLastSevenDays = [Date]()
         var arrayOfLastSevenCalLimitKeys = [Date]()
+        var arrayOfLastSevenCalLimitShortDays = [Int]()
         
         // Converts strings to dates
         let dateFormatter = DateFormatter()
@@ -204,33 +211,50 @@ class ViewController: UIViewController {
         
     
         // dates being comapaired need to be the actual day.
+        let now = Date()
+        let sevenDaysFromNow = now.addingTimeInterval(7*24*3600)
+        let difference = sevenDaysFromNow.timeIntervalSinceNow
+        var sevenDaysAgo = now - difference
+        print("seven days ago: \(sevenDaysAgo)")
         var valueA = Date()
         var valueB = Date()
-        // if the index == 0 and index != index_1, append
-        while index > -1 {
-            print(index)
+        
+        // find the last calorieLimit for each day
+        while index > -1  && keysAsDates[index] > sevenDaysAgo {
             valueA = keysAsDates[index]
-            print("HERE IS VALUE A: \(valueA)")
+            let valueA_Day = Calendar.current.component(.day, from: valueA)
+            
             if index == 0 {
-                if valueA != keysAsDates[index + 1] {
-                    arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
-                }
-            } else if index - 1 ==  -1 {
-                break
+                arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
+                
             } else {
+                
                 valueB = keysAsDates[index - 1]
-                let valueA_Day = Calendar.current.component(.day, from: valueA)
                 let valueB_Day = Calendar.current.component(.day, from: valueB)
-                print("COMPARING A: \(valueA_Day) B: \(valueB_Day)")
-                if index + 1 == keysAsDates.count { // captures key for the most recent calorie entry
+                
+                
+                if index == keysAsDates.count - 1 {
                     arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
-                } else if valueA_Day != valueB_Day {
-                    arrayOfLastSevenCalLimitKeys.append(keysAsDates[index]) // what index?
+                    arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
+                    index -= 1
+                    
+                } else if valueA_Day != valueB_Day  {
+                    for value in arrayOfLastSevenCalLimitShortDays { // this is looking at an explicit day and is useleses
+                        if valueA_Day == value {
+                            break
+                        } else {
+                            arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                        }
+                    }
                 }
             }
             index -= 1
         }
-        print("Keys for end limits: \(arrayOfLastSevenCalLimitKeys)")
+                print("Keys for end limits: \(arrayOfLastSevenCalLimitKeys)")
+        
+
+        
         
         for date in arrayOfLastSevenCalLimitKeys {
             let dateFormatter = DateFormatter()
@@ -464,7 +488,7 @@ class ViewController: UIViewController {
     }
     
     func displayTotalSpent(caloriesSpent today: Int) {
-        spent.text = String(today)
+        spent?.text = String(today)
     }
     
     // Cached values are only updating based on todays values when edited in diary.
@@ -489,8 +513,8 @@ class ViewController: UIViewController {
         }
       
         todayRemaining = calLimitAsInt - todayCaloriesSpent
-        self.cache.text = String(cache)
-        self.remaining.text = String(todayRemaining)
+        self.cache?.text = String(cache)
+        self.remaining?.text = String(todayRemaining)
 
         // Set value of remaining and spent to zero at midnight and stays until user enters new value.
         // Create function that erases data after so many days of no calorie entries.
@@ -498,6 +522,26 @@ class ViewController: UIViewController {
         // Create function that checks how many days between opening the app the last time.
         print(cache)
         
+    }
+    
+    func accountForNewAndMissedDays() {
+//        ref.root.child("jacksavagery").child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
+//            print(snapshot)
+//
+//            // Get user value
+//            let value = snapshot.value as? NSDictionary
+//            self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
+//            let calorieLimit = value?["calorieLimit"] as? String ?? ""
+//            let dateTime = value?["dateTime"] as? String ?? ""
+//            self.desc?.text = value?["description"] as? String ?? ""
+//
+//
+//            // let user = User(username: username)
+//
+//            // ...
+//        }) { (error) in
+//            print(error.localizedDescription)
+//        }
     }
     
 
