@@ -99,22 +99,12 @@ class ViewController: UIViewController {
 
         // prevent user's from entering 0 calories 
         if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
-            let alert = UIAlertController(title: "Alert", message: "Message", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {action in
-                switch action.style {
-                case .default:
-                    print("default")
-                case .cancel:
-                    print("cancel")
-                case .destructive:
-                    print("destructive")
-                }
-            }))
-            self.present(alert, animated: true, completion: nil)
+
         } else {
             if let userEntry = calorieTextBox?.text {
+                let aNewDay = newDay(date: calEntryDate)
                 let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
-                let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit)// this creates a sweet object we can pass along to firebase
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit, newDay: aNewDay)// this creates a sweet object we can pass along to firebase
                 let sweetRef = self.dbRef.child(calEntryDate) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
             }
@@ -124,6 +114,43 @@ class ViewController: UIViewController {
         }
     }
     
+    // determine if new entry is for a new day
+    func newDay(date: String) -> String {
+        var dateToReturn = ""
+        let newDate = date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        let latestEntry = dateFormatter.date(from: newDate)
+        var keys = [""]
+        if let endOfDayKeys = UserDefaults.standard.array(forKey: "endOfDayLimits") as? [String] {
+            keys = endOfDayKeys
+        }
+        let index = keys.count - 1
+        let lastDayKey = keys[0]
+        let lastDate = dateFormatter.date(from: lastDayKey)
+        dateFormatter.dateFormat = "dd"
+        let priorDate = Int(dateFormatter.string(from: lastDate!))!
+        let currentDate = Int(dateFormatter.string(from: latestEntry!))!
+        
+        if priorDate != currentDate {
+            print("\(priorDate) vs \(currentDate)")
+            
+     
+            
+            dateFormatter.dateFormat = "MMM dd"
+            if let dayToReturn = latestEntry {
+                dateToReturn = dateFormatter.string(from: dayToReturn)
+            }
+            
+            print("THIS IS THE DATE THAT WILL RETURN: \(dateToReturn)")
+
+            
+        } else {
+            dateToReturn = ""
+        }
+       
+        return dateToReturn
+    }
     
     func pullKeysFromFirebase(){
         // Pulls all keys from the provided username. The keys are the exact date and time of each calorie entry.
@@ -166,23 +193,28 @@ class ViewController: UIViewController {
         // Find last seven days of calories starting with the most recent calorie entry
         let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1}
         var index = keysAsDates.count - 1
-        let currentDate = Date()
-        let sevenDaysAgo = Date() - 7
+        let now = Date()
+        let sevenDaysFromNow = now.addingTimeInterval(7*24*3600)
+        let difference = sevenDaysFromNow.timeIntervalSinceNow
+        let sevenDaysAgo = now - difference
         
         while index > -1 {
             if convertedArrayAsTypeDate[index] > sevenDaysAgo {
                 arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
+             print("\n\n\n Added: \(convertedArrayAsTypeDate[index]) \n\n\n ")
+            } else {
+                break
             }
             index -= 1
         }
         
-        for date in keysAsDates {
+        for date in arrayOfLastSevenDays {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
             let convdate = dateFormatter.string(from: date)
             convertedArrayAsTypeString.append(convdate)
         }
-        
+        print("\n\n\n\n\n\n\n\n\n HERE IS THE ARRAY: \(convertedArrayAsTypeString) \n\n\n\n\n\n\n\n\n")
         return convertedArrayAsTypeString
     }
     
@@ -191,7 +223,7 @@ class ViewController: UIViewController {
         let datesAsStringArray = dates
         var convertedArrayAsTypeDate: [Date] = []
         var convertedArrayAsTypeString: [String] = []
-       // var arrayOfLastSevenDays = [Date]()
+        // var arrayOfLastSevenDays = [Date]()
         var arrayOfLastSevenCalLimitKeys = [Date]()
         var arrayOfLastSevenCalLimitShortDays = [Int]()
         
@@ -209,7 +241,7 @@ class ViewController: UIViewController {
         print("This is the order of the dates \(keysAsDates)")
         var index = keysAsDates.count - 1
         
-    
+        
         // dates being comapaired need to be the actual day.
         let now = Date()
         let sevenDaysFromNow = now.addingTimeInterval(7*24*3600)
@@ -220,37 +252,48 @@ class ViewController: UIViewController {
         var valueB = Date()
         
         // find the last calorieLimit for each day
-        while index > -1  && keysAsDates[index] > sevenDaysAgo {
-            valueA = keysAsDates[index]
-            let valueA_Day = Calendar.current.component(.day, from: valueA)
-            
-            if index == 0 {
-                arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
-                arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
+        while index > -1 {
+            print("\(keysAsDates[index]) vs. \(sevenDaysAgo)")
+            if keysAsDates[index] > sevenDaysAgo {
+                print("\n\nIT'S TRUE! IT'S TRUE!\n\n")
+            }
+            if keysAsDates[index] > sevenDaysAgo {
+                print("\n\(keysAsDates[index]) was included\n")
+                valueA = keysAsDates[index]
+                let valueA_Day = Calendar.current.component(.day, from: valueA)
                 
-            } else {
-                
-                valueB = keysAsDates[index - 1]
-                let valueB_Day = Calendar.current.component(.day, from: valueB)
-                
-                
-                if index == keysAsDates.count - 1 {
+                if index == 0 {
                     arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
                     arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
-                    index -= 1
                     
-                } else if valueA_Day != valueB_Day  {
-                    for value in arrayOfLastSevenCalLimitShortDays { // this is looking at an explicit day and is useleses
-                        if valueA_Day == value {
-                            break
-                        } else {
-                            arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                } else {
+                    
+                    valueB = keysAsDates[index - 1]
+                    let valueB_Day = Calendar.current.component(.day, from: valueB)
+                    
+                    
+                    if index == keysAsDates.count - 1 {
+                        arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                        arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
+                        index -= 1
+                        
+                    } else if valueA_Day != valueB_Day  {
+                        for value in arrayOfLastSevenCalLimitShortDays { // this is looking at an explicit day and is useleses
+                            if valueA_Day == value {
+                                break
+                            } else {
+                                arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
+                            }
                         }
                     }
                 }
+                index -= 1
+            } else {
+            break
             }
-            index -= 1
         }
+        
+    
                 print("Keys for end limits: \(arrayOfLastSevenCalLimitKeys)")
         
 
@@ -293,16 +336,13 @@ class ViewController: UIViewController {
         let currentDate = Date()
         let cal = Calendar(identifier: .gregorian)
         let beginningOfCurrentDay = cal.startOfDay(for: currentDate)
-        print("\n\nBeginning of current day: \(beginningOfCurrentDay)\n\n")
-        print("Current Date: \(currentDate)")
+
         
         while index > -1 {
-            print("Index \(index): \(convertedArrayAsTypeDate[index])")
             if convertedArrayAsTypeDate[index] > beginningOfCurrentDay {
                 arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
             }
             index -= 1
-            print("Index decremented to: \(index)")
         }
         
         for date in arrayOfLastSevenDays {
@@ -365,11 +405,9 @@ class ViewController: UIViewController {
         let lastSevenDaysOfKeys = lastSevenDates(dates: organizeDatesOldestToNewest())
         let todaysCalorieKeys = todaysDates(dates: organizeDatesOldestToNewest())
         let arrayOfCalorieLimits = findEndOfDayCalLimit(dates: organizeDatesOldestToNewest())
+        UserDefaults.standard.set(arrayOfCalorieLimits, forKey: "endOfDayLimits")
         let lastCalorieLimitEntry = arrayOfCalorieLimits.count - 1
         var lastCalLimitEntry = 0
-        
-        
-        print("Calorie Keys for Today: \(todaysCalorieKeys)")
         var lastSevenDaysOfCaloriesAsIntArray = [Int]()
         var lastSevenDaysOfCalorieLimitsAsIntArray = [Int]()
         var todayCaloriesAsIntArray = [Int]()
@@ -397,6 +435,7 @@ class ViewController: UIViewController {
                             if calorieAsString != "" {
                                 let intCal = Int(calorieAsString) //calorieAsString
                                 lastSevenDaysOfCaloriesAsIntArray.append(intCal!)
+                              //  print("\n\n\n ADDED: \(intCal) \n\n\n ")
                             }
                         }
                     }

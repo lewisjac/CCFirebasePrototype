@@ -23,14 +23,16 @@ struct UserEntry {
     let dateTime: String?
     let calorieLimit: String?
     let description: String?
+    let newDay: String?
     let itemRef: DatabaseReference?
     
-    init(calories: String, description: String, dateTime: String, calorieLimit: String, key: String = "") {
+    init(calories: String, description: String, dateTime: String, calorieLimit: String, newDay: String, key: String = "") {
         self.key = key
         self.calories = calories
         self.description = description
         self.dateTime = dateTime
         self.calorieLimit = calorieLimit
+        self.newDay = newDay
         self.itemRef = nil
     }
     
@@ -56,6 +58,12 @@ struct UserEntry {
             dateTime = ""
         }
         
+        if let dict = snapshot.value as? NSDictionary, let new = dict["newDay"] as? String {
+            newDay = new
+        } else {
+            newDay = ""
+        }
+        
         if let dict = snapshot.value as? NSDictionary, let desc = dict["description"] as? String {
             description = desc
         } else {
@@ -65,7 +73,7 @@ struct UserEntry {
     }
     
     func toAnyObject() -> AnyObject {
-        let array = ["calorieEntry":calories, "description":description, "calorieLimit":calorieLimit, "dateTime":dateTime]
+        let array = ["calorieEntry":calories, "description":description, "calorieLimit":calorieLimit, "dateTime":dateTime, "newDay":newDay]
         return array as AnyObject
     }
 }

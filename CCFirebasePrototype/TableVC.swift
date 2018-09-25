@@ -43,6 +43,9 @@ class TableVC: UITableViewController {
         })
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Hello Wurlt"
+    }
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -66,8 +69,7 @@ class TableVC: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         
         if editingStyle == .delete {
-            let entry = userEntries[indexPath.row] // would this pass an actual referenc
-            
+            let entry = userEntries[indexPath.row]
             entry.itemRef?.removeValue()
         }
     }

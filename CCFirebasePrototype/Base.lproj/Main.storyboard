@@ -53,7 +53,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="new entry" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MNA-Eq-UM0">
-                                                <rect key="frame" x="106" y="17" width="126.5" height="36"/>
+                                                <rect key="frame" x="106.5" y="17" width="126.5" height="36"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="36" id="GBa-vN-IDW"/>
                                                 </constraints>
@@ -170,11 +170,11 @@
                                     <constraint firstItem="mhT-6S-2JB" firstAttribute="top" secondItem="4R3-L1-4aL" secondAttribute="top" constant="244" id="rSW-st-69W"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YXT-in-KLx">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXT-in-KLx">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="124"/>
                                 <color key="backgroundColor" red="0.93333333333333335" green="0.41960784313725491" blue="0.27450980392156865" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="CalorieCache" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DBa-Qg-cM0">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CalorieCache" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DBa-Qg-cM0">
                                 <rect key="frame" x="71" y="76" width="232" height="48"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="40"/>
                                 <color key="textColor" red="0.91631039589999996" green="1" blue="0.93101841939999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -184,11 +184,16 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="4R3-L1-4aL" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="3Pw-Ze-xak"/>
+                            <constraint firstItem="YXT-in-KLx" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="GTN-9d-xlh"/>
+                            <constraint firstItem="YXT-in-KLx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="O4D-19-Q5a"/>
+                            <constraint firstItem="YXT-in-KLx" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="O9s-dz-BaA"/>
                             <constraint firstItem="YXT-in-KLx" firstAttribute="centerX" secondItem="DBa-Qg-cM0" secondAttribute="centerX" id="QXA-iR-aVZ"/>
                             <constraint firstItem="YXT-in-KLx" firstAttribute="top" secondItem="4R3-L1-4aL" secondAttribute="top" id="RM3-Sd-pPx"/>
                             <constraint firstItem="4R3-L1-4aL" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="XPp-6H-UA9"/>
                             <constraint firstItem="4R3-L1-4aL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="d5b-Nd-qhT"/>
+                            <constraint firstItem="DBa-Qg-cM0" firstAttribute="centerX" secondItem="YXT-in-KLx" secondAttribute="centerX" id="lNZ-Dm-ne5"/>
                             <constraint firstItem="4R3-L1-4aL" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="lT9-Nc-LEI"/>
+                            <constraint firstItem="DBa-Qg-cM0" firstAttribute="centerX" secondItem="4R3-L1-4aL" secondAttribute="centerX" id="oNO-Iu-Per"/>
                             <constraint firstItem="DBa-Qg-cM0" firstAttribute="top" secondItem="YXT-in-KLx" secondAttribute="bottom" constant="-48" id="qGa-G7-dq7"/>
                             <constraint firstItem="DBa-Qg-cM0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="ywA-QE-Eah"/>
                         </constraints>
