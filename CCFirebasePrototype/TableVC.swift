@@ -27,15 +27,16 @@ class TableVC: UITableViewController {
     
 
     func startObservingBD() {
-        ref.observe(.value, with: {(snapshot: DataSnapshot) in
+        ref.queryLimited(toLast: 75).observe(.value, with: {(snapshot: DataSnapshot) in
             var newEntries = [UserEntry]()
             
             for entry in snapshot.children {
                 let entryObject = UserEntry(snapshot: entry as! DataSnapshot)
+                
                 newEntries.append(entryObject)
             }
             
-            self.userEntries = newEntries
+            self.userEntries = newEntries.reversed()
             print(self.userEntries)
             self.tableView.reloadData()
         }, withCancel: {(error: Error) in
@@ -43,9 +44,7 @@ class TableVC: UITableViewController {
         })
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Hello Wurlt"
-    }
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -75,16 +74,12 @@ class TableVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         let entry = userEntries[indexPath.row] // would this pass an actual reference
         EditVC(ref: entry)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let nextView = storyboard.instantiateViewController(withIdentifier: "EditVC") as! EditVC
         self.navigationController?.pushViewController(nextView, animated: true)
        
-        
-
-        
     }
     
 

@@ -30,6 +30,7 @@ class ViewController: UIViewController {
     var totalSpentCals: Int = 0
     var numCalsArray = [Int]()
     var keyDateArray = [String]() // this array holds the keys which gain access to the values in the fb databse
+    var now = Date()
     
     @IBOutlet weak var calorieTextBox: UITextField?
     @IBOutlet weak var foodDescription: UITextField?
@@ -53,7 +54,7 @@ class ViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let diaryView = storyboard.instantiateViewController(withIdentifier: "TableVC") as! UITableViewController
         self.navigationController?.pushViewController(diaryView, animated: true)
-
+        
     }
     
     @IBAction func settingsButton(_ sender: UIButton) {
@@ -66,9 +67,14 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
+        
         self.dbRef = Database.database().reference().child("jacksavagery")
+        cleanupDatabase()
         pullKeysFromFirebase()
+        self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
     }
+    
+
     
     
     // add functionality that blocks the user from:
@@ -80,14 +86,16 @@ class ViewController: UIViewController {
         formatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let now = formatter.string(from: date)
         var calEntryDate = ""
+        
         if let tempPickerDate = self.dateTime?.date {
             calEntryDate = formatter.string(from: tempPickerDate)
         }
-        print(calEntryDate)
+        
         var userCalories = ""
         if let userEnteredCalories = calorieTextBox?.text {
             userCalories = userEnteredCalories
         }
+        
         var food = ""
         if let desc = foodDescription?.text {
             if desc == "" {
@@ -96,10 +104,10 @@ class ViewController: UIViewController {
                 food = desc
             }
         }
-
+        
         // prevent user's from entering 0 calories 
         if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
-
+            
         } else {
             if let userEntry = calorieTextBox?.text {
                 let aNewDay = newDay(date: calEntryDate)
@@ -111,6 +119,7 @@ class ViewController: UIViewController {
             
             calorieTextBox?.text = ""
             foodDescription?.text = ""
+            dateTime?.date = Date()
         }
     }
     
@@ -133,23 +142,40 @@ class ViewController: UIViewController {
         let currentDate = Int(dateFormatter.string(from: latestEntry!))!
         
         if priorDate != currentDate {
-            print("\(priorDate) vs \(currentDate)")
-            
-     
-            
             dateFormatter.dateFormat = "MMM dd"
             if let dayToReturn = latestEntry {
                 dateToReturn = dateFormatter.string(from: dayToReturn)
             }
-            
-            print("THIS IS THE DATE THAT WILL RETURN: \(dateToReturn)")
-
-            
         } else {
             dateToReturn = ""
         }
-       
+        
         return dateToReturn
+    }
+    
+    // This removes entries from the database that are more than eight days old.
+    func cleanupDatabase() {
+        let now = Date()
+        let eightDaysFromNow = now.addingTimeInterval(8*24*3600)
+        let difference = eightDaysFromNow.timeIntervalSinceNow
+        let eightDaysAgo = now - difference
+        
+        dbRef.observe(.value, with: {(snapshot: DataSnapshot) in
+            for entry in snapshot.children {
+                let entryObject = UserEntry(snapshot: entry as! DataSnapshot)
+                if let dateOfObject = entryObject.dateTime {
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+                    if let convertedDate = dateFormatter.date(from: dateOfObject) {
+                        if convertedDate < eightDaysAgo {
+                            entryObject.itemRef?.removeValue()
+                        }
+                    }
+                }
+            }
+        }, withCancel: {(error: Error) in
+            print(error.localizedDescription)
+        })
     }
     
     func pullKeysFromFirebase(){
@@ -201,7 +227,6 @@ class ViewController: UIViewController {
         while index > -1 {
             if convertedArrayAsTypeDate[index] > sevenDaysAgo {
                 arrayOfLastSevenDays.append(convertedArrayAsTypeDate[index])
-             print("\n\n\n Added: \(convertedArrayAsTypeDate[index]) \n\n\n ")
             } else {
                 break
             }
@@ -214,7 +239,7 @@ class ViewController: UIViewController {
             let convdate = dateFormatter.string(from: date)
             convertedArrayAsTypeString.append(convdate)
         }
-        print("\n\n\n\n\n\n\n\n\n HERE IS THE ARRAY: \(convertedArrayAsTypeString) \n\n\n\n\n\n\n\n\n")
+        
         return convertedArrayAsTypeString
     }
     
@@ -238,7 +263,6 @@ class ViewController: UIViewController {
         }
         
         let keysAsDates = convertedArrayAsTypeDate.sorted(){$0 < $1} // orders dates least to greatest
-        print("This is the order of the dates \(keysAsDates)")
         var index = keysAsDates.count - 1
         
         
@@ -246,19 +270,13 @@ class ViewController: UIViewController {
         let now = Date()
         let sevenDaysFromNow = now.addingTimeInterval(7*24*3600)
         let difference = sevenDaysFromNow.timeIntervalSinceNow
-        var sevenDaysAgo = now - difference
-        print("seven days ago: \(sevenDaysAgo)")
+        let sevenDaysAgo = now - difference
         var valueA = Date()
         var valueB = Date()
         
         // find the last calorieLimit for each day
         while index > -1 {
-            print("\(keysAsDates[index]) vs. \(sevenDaysAgo)")
             if keysAsDates[index] > sevenDaysAgo {
-                print("\n\nIT'S TRUE! IT'S TRUE!\n\n")
-            }
-            if keysAsDates[index] > sevenDaysAgo {
-                print("\n\(keysAsDates[index]) was included\n")
                 valueA = keysAsDates[index]
                 let valueA_Day = Calendar.current.component(.day, from: valueA)
                 
@@ -289,15 +307,9 @@ class ViewController: UIViewController {
                 }
                 index -= 1
             } else {
-            break
+                break
             }
         }
-        
-    
-                print("Keys for end limits: \(arrayOfLastSevenCalLimitKeys)")
-        
-
-        
         
         for date in arrayOfLastSevenCalLimitKeys {
             let dateFormatter = DateFormatter()
@@ -307,7 +319,7 @@ class ViewController: UIViewController {
         }
         
         
-     
+        
         return convertedArrayAsTypeString
     }
     
@@ -336,7 +348,7 @@ class ViewController: UIViewController {
         let currentDate = Date()
         let cal = Calendar(identifier: .gregorian)
         let beginningOfCurrentDay = cal.startOfDay(for: currentDate)
-
+        
         
         while index > -1 {
             if convertedArrayAsTypeDate[index] > beginningOfCurrentDay {
@@ -351,10 +363,7 @@ class ViewController: UIViewController {
             let convdate = dateFormatter.string(from: date)
             convertedArrayAsTypeString.append(convdate)
         }
-        
-        print(convertedArrayAsTypeString)
         return convertedArrayAsTypeString
-        
     }
     
     // Removes duplicates from the array of dates and provides a String array of dates
@@ -385,7 +394,6 @@ class ViewController: UIViewController {
             while index_2 < datesOrderedByAscending.count { // what's going on here: if index2 is less than the number of dates
                 var noMatchingDates = false
                 if baseDate == datesOrderedByAscending[index_2] {
-                    //  print("Index: \(index) Base Value: \(baseValue), Pending: \(datesOrderedByAscending[index_2])")
                     datesOrderedByAscending.remove(at: index_2)
                 } else {
                     noMatchingDates = true
@@ -423,7 +431,7 @@ class ViewController: UIViewController {
         ref.observe(.value, with: { (snapshot) in
             dictData = snapshot.value as! [String:Any]
             
-             // Find last seven days worth of calories
+            // Find last seven days worth of calories
             while index < lastSevenDaysOfKeys.count {
                 let date = lastSevenDaysOfKeys[index]
                 if let valuesStoredInDict = dictData[date] as? [String:Any] {
@@ -435,7 +443,6 @@ class ViewController: UIViewController {
                             if calorieAsString != "" {
                                 let intCal = Int(calorieAsString) //calorieAsString
                                 lastSevenDaysOfCaloriesAsIntArray.append(intCal!)
-                              //  print("\n\n\n ADDED: \(intCal) \n\n\n ")
                             }
                         }
                     }
@@ -445,7 +452,6 @@ class ViewController: UIViewController {
             }
             let sevenDayCalTotal = lastSevenDaysOfCaloriesAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCaloriesAsIntArray
-            print("\n\n\n The last seven days worth of calories: \(sevenDayCalTotal) \n\n\n")
             self.passedCaloriesArray(thems: lastSevenDaysOfCaloriesAsIntArray)
             
             // Find Today's Calories
@@ -470,10 +476,9 @@ class ViewController: UIViewController {
             
             let todayCalTotal = todayCaloriesAsIntArray.reduce(0,+)
             self.calories = todayCaloriesAsIntArray
-            print("\n\n\n Today's spent calories: \(todayCalTotal) \n\n\n")
             self.displayTotalSpent(caloriesSpent: todayCalTotal)
             
-           
+            
             // Find Last Seven Days of calorie limits
             while indexCalorieLimit < arrayOfCalorieLimits.count {
                 let date = arrayOfCalorieLimits[indexCalorieLimit]
@@ -494,26 +499,11 @@ class ViewController: UIViewController {
                 indexCalorieLimit += 1
             }
             
-            // Find Last Calorie Limit Setting
-//            let date = arrayOfCalorieLimits[lastCalorieLimitEntry]
-//            if let valuesStoredInDict = dictData[date] as? [String:Any] {
-//                let dictValsForDate = valuesStoredInDict
-//                if let dictValsSortedAsDict = dictValsForDate as? [String:String] {
-//                    let valueforDate = dictValsSortedAsDict
-//                    if let calorieLimitFromDictForDate = valueforDate["calorieLimit"] {
-//                        let calorieLimitAsString = calorieLimitFromDictForDate
-//                        if calorieLimitAsString != "" {
-//                            lastCalLimitEntry = calLimitAsInt
-//                        }
-//                    }
-//                }
-//            }
-//
+
             let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
             let calLimitAsInt = Int(pulledCalorieLimit)!
             let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
-            print("\n\n\n The last seven calorie limit: \(sevenDayCalLimitTotal) \n\n\n")
             self.displayCacheValue(caloriesSpent: todayCalTotal, calorieLimitTotal: sevenDayCalLimitTotal, calorieSpentTotal: sevenDayCalTotal, lastCalorieLimit: calLimitAsInt)
             
         })
@@ -522,7 +512,6 @@ class ViewController: UIViewController {
     
     func passedCaloriesArray(thems: [Int]) {
         self.calories = thems
-        print("THE CALORIES: \(self.calories)")
         
     }
     
@@ -550,39 +539,39 @@ class ViewController: UIViewController {
         } else {
             cache = limit - spent
         }
-      
+        
         todayRemaining = calLimitAsInt - todayCaloriesSpent
         self.cache?.text = String(cache)
         self.remaining?.text = String(todayRemaining)
-
+        
         // Set value of remaining and spent to zero at midnight and stays until user enters new value.
         // Create function that erases data after so many days of no calorie entries.
         // create placeholder zero calorie entry for when the user misses a day.
         // Create function that checks how many days between opening the app the last time.
-        print(cache)
+        
         
     }
     
     func accountForNewAndMissedDays() {
-//        ref.root.child("jacksavagery").child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
-//            print(snapshot)
-//
-//            // Get user value
-//            let value = snapshot.value as? NSDictionary
-//            self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
-//            let calorieLimit = value?["calorieLimit"] as? String ?? ""
-//            let dateTime = value?["dateTime"] as? String ?? ""
-//            self.desc?.text = value?["description"] as? String ?? ""
-//
-//
-//            // let user = User(username: username)
-//
-//            // ...
-//        }) { (error) in
-//            print(error.localizedDescription)
-//        }
+        //        ref.root.child("jacksavagery").child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
+        //            print(snapshot)
+        //
+        //            // Get user value
+        //            let value = snapshot.value as? NSDictionary
+        //            self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
+        //            let calorieLimit = value?["calorieLimit"] as? String ?? ""
+        //            let dateTime = value?["dateTime"] as? String ?? ""
+        //            self.desc?.text = value?["description"] as? String ?? ""
+        //
+        //
+        //            // let user = User(username: username)
+        //
+        //            // ...
+        //        }) { (error) in
+        //            print(error.localizedDescription)
+        //        }
     }
     
-
+    
 }
 
