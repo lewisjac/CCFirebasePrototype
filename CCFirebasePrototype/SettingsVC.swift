@@ -8,12 +8,15 @@
 
 import Foundation
 import Firebase
+import FBSDKLoginKit
 import UIKit
 
 class SettingsVC: UIViewController {
     var ref = Database.database().reference()
     var reference: DatabaseReference!
+    let userID = Auth.auth().currentUser?.uid
     @IBOutlet weak var calorieLimit: UITextField?
+    
     
     override func viewDidLoad() {
         let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
@@ -33,12 +36,17 @@ class SettingsVC: UIViewController {
         let calLimit = calorieLimit?.text
         UserDefaults.standard.set(calLimit, forKey: "calorieLimit")
         
-        ref.root.child("jacksavagery").childByAutoId().observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.root.child(userID!).childByAutoId().observeSingleEvent(of: .value, with: { (snapshot) in
             print(snapshot)
            
         }) { (error) in
             print(error.localizedDescription)
         }
+    }
+    
+    @IBAction func logOut(_ sender: UIButton) {
+        let loginManager = FBSDKLoginManager()
+        loginManager.logOut()
     }
 }
 

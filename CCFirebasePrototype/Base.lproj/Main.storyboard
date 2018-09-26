@@ -12,10 +12,26 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Log InVC-->
+        <scene sceneID="O3M-X7-ldf">
+            <objects>
+                <viewController id="byV-wA-WeJ" customClass="LogInVC" customModule="CCFirebasePrototype" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="mY6-3q-etS">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.36862745098039218" green="0.65490196078431373" blue="0.90980392156862744" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="yah-3S-Eh4"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="AyW-Ge-oZ1"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="65i-bS-mWe" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1057" y="-579"/>
+        </scene>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="CCFirebasePrototype" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Dashboard" id="BYZ-38-t0r" customClass="ViewController" customModule="CCFirebasePrototype" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -173,11 +189,11 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXT-in-KLx">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="124"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
                                 <color key="backgroundColor" red="0.93333333333333335" green="0.41960784313725491" blue="0.27450980392156865" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CalorieCache" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DBa-Qg-cM0">
-                                <rect key="frame" x="71" y="76" width="232" height="48"/>
+                                <rect key="frame" x="71" y="32" width="232" height="48"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="40"/>
                                 <color key="textColor" red="0.91631039589999996" green="1" blue="0.93101841939999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -419,17 +435,28 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xd8-nn-A9m">
+                                <rect key="frame" x="146" y="462" width="83" height="41"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <state key="normal" title="Log Out"/>
+                                <connections>
+                                    <action selector="logOut:" destination="0ix-KJ-uf6" eventType="touchUpInside" id="ILF-0E-IT9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="ika-A4-e7v" firstAttribute="top" secondItem="sjf-ad-m2C" secondAttribute="top" constant="85" id="E9D-V9-QlA"/>
                             <constraint firstItem="vKA-DF-m1s" firstAttribute="top" secondItem="ol5-g9-CmE" secondAttribute="bottom" constant="68" id="QWK-nI-VBq"/>
+                            <constraint firstItem="Xd8-nn-A9m" firstAttribute="centerX" secondItem="n0f-oA-PfV" secondAttribute="centerX" id="Uun-jg-W4y"/>
                             <constraint firstItem="ol5-g9-CmE" firstAttribute="centerX" secondItem="n0f-oA-PfV" secondAttribute="centerX" id="Ycl-lT-EMH"/>
                             <constraint firstItem="ika-A4-e7v" firstAttribute="centerX" secondItem="n0f-oA-PfV" secondAttribute="centerX" id="ZwS-zg-l5j"/>
                             <constraint firstItem="vKA-DF-m1s" firstAttribute="centerX" secondItem="n0f-oA-PfV" secondAttribute="centerX" id="aDn-0Z-OCJ"/>
                             <constraint firstItem="aQF-u2-PG9" firstAttribute="centerX" secondItem="n0f-oA-PfV" secondAttribute="centerX" id="f89-Df-WLt"/>
                             <constraint firstItem="aQF-u2-PG9" firstAttribute="top" secondItem="vKA-DF-m1s" secondAttribute="bottom" constant="8" symbolic="YES" id="fGX-oO-a6m"/>
+                            <constraint firstItem="Xd8-nn-A9m" firstAttribute="centerX" secondItem="aQF-u2-PG9" secondAttribute="centerX" id="oJx-fg-h6h"/>
                             <constraint firstItem="ol5-g9-CmE" firstAttribute="top" secondItem="ika-A4-e7v" secondAttribute="bottom" constant="8" symbolic="YES" id="pwo-Ig-wiU"/>
+                            <constraint firstItem="sjf-ad-m2C" firstAttribute="bottom" secondItem="Xd8-nn-A9m" secondAttribute="bottom" constant="164" id="veb-kx-bGr"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="sjf-ad-m2C"/>
                     </view>
@@ -452,12 +479,12 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="non-uf-6ch"/>
+                        <segue destination="byV-wA-WeJ" kind="relationship" relationship="rootViewController" id="n1Y-4J-CTf"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5V0-6o-8ig" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="117.59999999999999" y="118.29085457271366"/>
+            <point key="canvasLocation" x="194" y="-580"/>
         </scene>
     </scenes>
 </document>

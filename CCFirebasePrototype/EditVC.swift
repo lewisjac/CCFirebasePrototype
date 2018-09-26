@@ -8,12 +8,15 @@
 
 import Foundation
 import FirebaseDatabase
-
+import FirebaseAuth
+ 
 class EditVC: UIViewController {
     var ref = Database.database().reference()
     var reference: DatabaseReference!
     var userEntry: UserEntry!
     var key = ""
+    var calorieLimit = ""
+    let userID = Auth.auth().currentUser?.uid
     
     @IBOutlet var desc: UITextField?
     @IBOutlet var calorieEntry: UITextField?
@@ -37,17 +40,18 @@ class EditVC: UIViewController {
         super.viewDidLoad()
         setEntryValues()
     }
+
     
     func setEntryValues(){
         let pulledKey = UserDefaults.standard.string(forKey: "key") ?? ""
         // Set Descriptoin
-        ref.root.child("jacksavagery").child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.root.child(userID!).child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
             print(snapshot)
             
                         // Get user value
             let value = snapshot.value as? NSDictionary
             self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
-            let calorieLimit = value?["calorieLimit"] as? String ?? ""
+            self.calorieLimit = value?["calorieLimit"] as? String ?? ""
             let dateTime = value?["dateTime"] as? String ?? ""
             self.desc?.text = value?["description"] as? String ?? ""
             
@@ -80,9 +84,9 @@ class EditVC: UIViewController {
         dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let date = dateFormatter.string(from: (datePicker?.date)!)
         let key = UserDefaults.standard.string(forKey: "key") ?? ""
-        let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
-        Database.database().reference().root.child("jacksavagery").child(key).updateChildValues(["calorieEntry" : calorieEntry?.text! ?? "",
-                                                                                                 "calorieLimit" : pulledCalorieLimit,
+       // let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+        Database.database().reference().root.child(userID!).child(key).updateChildValues(["calorieEntry" : calorieEntry?.text! ?? "",
+                                                                                                 "calorieLimit" : self.calorieLimit,
                                                                                                  "dateTime" : date,
                                                                                                  "description" : desc?.text! ?? ""
             ])

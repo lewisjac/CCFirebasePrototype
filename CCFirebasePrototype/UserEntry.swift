@@ -73,7 +73,7 @@ struct UserEntry {
     }
     
     func toAnyObject() -> AnyObject {
-        let array = ["calorieEntry":calories, "description":description, "calorieLimit":calorieLimit, "dateTime":dateTime, "newDay":newDay]
+        let array = ["calorieEntry":calories, "description":description, "calorieLimit":calorieLimit, "dateTime":dateTime]
         return array as AnyObject
     }
 }

@@ -14,6 +14,7 @@ import FirebaseAuth
 class TableVC: UITableViewController {
     var ref: DatabaseReference!
     var userEntries = [UserEntry]()
+    let userID = Auth.auth().currentUser?.uid
     
 
    
@@ -21,7 +22,7 @@ class TableVC: UITableViewController {
         super.viewDidLoad()
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
-        ref = Database.database().reference().child("jacksavagery") // change .child to reference user's login information.
+        ref = Database.database().reference().child(userID!) // change .child to reference user's login information.
         startObservingBD()
     }
     

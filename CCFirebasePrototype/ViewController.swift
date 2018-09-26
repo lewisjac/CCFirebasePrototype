@@ -31,6 +31,7 @@ class ViewController: UIViewController {
     var numCalsArray = [Int]()
     var keyDateArray = [String]() // this array holds the keys which gain access to the values in the fb databse
     var now = Date()
+    let userID = Auth.auth().currentUser?.uid
     
     @IBOutlet weak var calorieTextBox: UITextField?
     @IBOutlet weak var foodDescription: UITextField?
@@ -68,13 +69,16 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         Database.database().isPersistenceEnabled = true
         
-        self.dbRef = Database.database().reference().child("jacksavagery")
+        self.dbRef = Database.database().reference().child(self.userID!)
         cleanupDatabase()
         pullKeysFromFirebase()
         self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
     }
     
-
+    override func viewWillAppear(_ animated: Bool) {
+        dateTime?.date = Date()
+        
+    }
     
     
     // add functionality that blocks the user from:
@@ -110,9 +114,9 @@ class ViewController: UIViewController {
             
         } else {
             if let userEntry = calorieTextBox?.text {
-                let aNewDay = newDay(date: calEntryDate)
+             //   let aNewDay = newDay(date: calEntryDate)
                 let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
-                let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit, newDay: aNewDay)// this creates a sweet object we can pass along to firebase
+                let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit, newDay: "")// this creates a sweet object we can pass along to firebase
                 let sweetRef = self.dbRef.child(calEntryDate) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
             }
@@ -121,42 +125,43 @@ class ViewController: UIViewController {
             foodDescription?.text = ""
             dateTime?.date = Date()
         }
+        
     }
     
     // determine if new entry is for a new day
-    func newDay(date: String) -> String {
-        var dateToReturn = ""
-        let newDate = date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
-        let latestEntry = dateFormatter.date(from: newDate)
-        var keys = [""]
-        if let endOfDayKeys = UserDefaults.standard.array(forKey: "endOfDayLimits") as? [String] {
-            keys = endOfDayKeys
-        }
-        let index = keys.count - 1
-        let lastDayKey = keys[0]
-        let lastDate = dateFormatter.date(from: lastDayKey)
-        dateFormatter.dateFormat = "dd"
-        let priorDate = Int(dateFormatter.string(from: lastDate!))!
-        let currentDate = Int(dateFormatter.string(from: latestEntry!))!
-        
-        if priorDate != currentDate {
-            dateFormatter.dateFormat = "MMM dd"
-            if let dayToReturn = latestEntry {
-                dateToReturn = dateFormatter.string(from: dayToReturn)
-            }
-        } else {
-            dateToReturn = ""
-        }
-        
-        return dateToReturn
-    }
+//    func newDay(date: String) -> String {
+//        var dateToReturn = ""
+//        let newDate = date
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+//        let latestEntry = dateFormatter.date(from: newDate)
+//        var keys = [""]
+//        if let endOfDayKeys = UserDefaults.standard.array(forKey: "endOfDayLimits") as? [String] {
+//            keys = endOfDayKeys
+//        }
+//        let index = keys.count - 1
+//        let lastDayKey = keys[0]
+//        let lastDate = dateFormatter.date(from: lastDayKey)
+//        dateFormatter.dateFormat = "dd"
+//        let priorDate = Int(dateFormatter.string(from: lastDate!))!
+//        let currentDate = Int(dateFormatter.string(from: latestEntry!))!
+//
+//        if priorDate != currentDate {
+//            dateFormatter.dateFormat = "MMM dd"
+//            if let dayToReturn = latestEntry {
+//                dateToReturn = dateFormatter.string(from: dayToReturn)
+//            }
+//        } else {
+//            dateToReturn = ""
+//        }
+//
+//        return dateToReturn
+//    }
     
     // This removes entries from the database that are more than eight days old.
     func cleanupDatabase() {
         let now = Date()
-        let eightDaysFromNow = now.addingTimeInterval(8*24*3600)
+        let eightDaysFromNow = now.addingTimeInterval(7*24*3600)
         let difference = eightDaysFromNow.timeIntervalSinceNow
         let eightDaysAgo = now - difference
         
@@ -319,7 +324,7 @@ class ViewController: UIViewController {
         }
         
         
-        
+        print(convertedArrayAsTypeString)
         return convertedArrayAsTypeString
     }
     
@@ -424,12 +429,14 @@ class ViewController: UIViewController {
         var indexToday = 0
         var indexCalorieLimit = 0
         var dictData = [String:Any]()
-        let ref = Database.database().reference().child("jacksavagery")
         
         
         // Start observing firebase values
-        ref.observe(.value, with: { (snapshot) in
-            dictData = snapshot.value as! [String:Any]
+        dbRef.observe(.value, with: { (snapshot) in
+            var dictData: [String:Any] = [:]
+            if let diData = snapshot.value as? [String:Any] {
+                dictData = diData
+            }
             
             // Find last seven days worth of calories
             while index < lastSevenDaysOfKeys.count {
@@ -526,7 +533,9 @@ class ViewController: UIViewController {
         // Cache needs to update upon midnight to include new availble calories.
         // if previous entry is from a a different day, enter false limit calories, else don't do anything.
         let limit = calorieLimitTotal
+        print("Limit: \(limit)")
         let spent = calorieSpentTotal
+        print("Spent: \(spent)")
         let lastLimitSetting = lastCalorieLimit
         let todayCaloriesSpent = caloriesSpent
         var todayRemaining = 0

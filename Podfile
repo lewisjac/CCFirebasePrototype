@@ -11,6 +11,7 @@ target 'CCFirebasePrototype' do
     pod 'Firebase/Database'
     pod 'Firebase/Storage'
     pod 'Firebase/Auth'
+    pod 'FBSDKLoginKit'
     
   target 'CCFirebasePrototypeTests' do
     inherit! :search_paths
