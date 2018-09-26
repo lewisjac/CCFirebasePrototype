@@ -23,14 +23,16 @@ struct UserEntry {
     let dateTime: String?
     let calorieLimit: String?
     let description: String?
+    let newDay: String?
     let itemRef: DatabaseReference?
     
-    init(calories: String, description: String, dateTime: String, calorieLimit: String, key: String = "") {
+    init(calories: String, description: String, dateTime: String, calorieLimit: String, newDay: String, key: String = "") {
         self.key = key
         self.calories = calories
         self.description = description
         self.dateTime = dateTime
         self.calorieLimit = calorieLimit
+        self.newDay = newDay
         self.itemRef = nil
     }
     
@@ -54,6 +56,12 @@ struct UserEntry {
             dateTime = dntOfEntry
         } else {
             dateTime = ""
+        }
+        
+        if let dict = snapshot.value as? NSDictionary, let new = dict["newDay"] as? String {
+            newDay = new
+        } else {
+            newDay = ""
         }
         
         if let dict = snapshot.value as? NSDictionary, let desc = dict["description"] as? String {

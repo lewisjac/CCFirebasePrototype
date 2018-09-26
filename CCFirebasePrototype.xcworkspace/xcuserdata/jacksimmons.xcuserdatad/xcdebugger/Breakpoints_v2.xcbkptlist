@@ -9,29 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CCFirebasePrototype/EditVC.swift"
-            timestampString = "559341876.668251"
+            filePath = "CCFirebasePrototype/AppDelegate.swift"
+            timestampString = "559666576.326467"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "init(ref:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CCFirebasePrototype/EditVC.swift"
-            timestampString = "559341876.668347"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "48"
-            endingLineNumber = "48"
-            landmarkName = "pickThatDate()"
+            startingLineNumber = "28"
+            endingLineNumber = "28"
+            landmarkName = "loginButton(_:didCompleteWith:error:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

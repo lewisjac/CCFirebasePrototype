@@ -1,4 +1,4 @@
-//
+ //
 //  EditVC.swift
 //  CCFirebasePrototype
 //
@@ -8,76 +8,94 @@
 
 import Foundation
 import FirebaseDatabase
-
+import FirebaseAuth
+ 
 class EditVC: UIViewController {
+    var ref = Database.database().reference()
     var reference: DatabaseReference!
     var userEntry: UserEntry!
     var key = ""
+    var calorieLimit = ""
+    let userID = Auth.auth().currentUser?.uid
     
+    @IBOutlet var desc: UITextField?
+    @IBOutlet var calorieEntry: UITextField?
     @IBOutlet var datePicker: UIDatePicker?
     
-    
-    convenience init(ref: UserEntry) {
-        self.init()
-    
+    init(ref: UserEntry) {
+        super.init(nibName: nil, bundle: nil)
+
         if let tempKey = ref.itemRef?.key {
             self.key = tempKey
         }
-   
-        updateValues(key: self.key)
-        
-    }
-    
-    func pickThatDate(){
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm"
-        var dateForDatePicker = Date()
-        if let date = dateFormatter.date(from: self.key)  {
-            dateForDatePicker = date
-        }
-        let picker = datePicker
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd HH:mm"
-        let someDateTime = formatter.date(from: self.key)
-        print(dateForDatePicker)
-        
-        var calendar: Calendar = Calendar.current
-        var components = calendar.dateComponents([.hour, .minute], from: Date())
-        components.hour = 5
-        components.minute = 50
-        datePicker?.setDate(someDateTime!, animated: true)
-        // txtDatePicker.setDate(calendar.dateFromComponents(components)!, animated: true)
 
+        UserDefaults.standard.set(self.key, forKey: "key") // if this is not saved at this point it will go out of memory.
     }
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        pickThatDate()
+        setEntryValues()
+    }
+
+    
+    func setEntryValues(){
+        let pulledKey = UserDefaults.standard.string(forKey: "key") ?? ""
+        // Set Descriptoin
+        ref.root.child(userID!).child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
+            print(snapshot)
+            
+                        // Get user value
+            let value = snapshot.value as? NSDictionary
+            self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
+            self.calorieLimit = value?["calorieLimit"] as? String ?? ""
+            let dateTime = value?["dateTime"] as? String ?? ""
+            self.desc?.text = value?["description"] as? String ?? ""
+            
+            
+            // let user = User(username: username)
+
+            // ...
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+        
+        
+        
+        // Set DatePicker
+        print(pulledKey)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        let date = dateFormatter.date(from: pulledKey)
+        self.datePicker?.datePickerMode = .dateAndTime
+        self.datePicker?.setDate(date!, animated: false)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        reference = Database.database().reference().child("jacksavagery") // change .child to reference user's login information.
-       // updateValues(key: self.key)
-    }
+
     
     
     
     // how do we import the keys to this point here?
-    func updateValues(key: String) {
-        let key = self.key
-        print("Here is the key: \(key)")
-        let post = ["calorieEntry" : "0",
-                    "calorieLimit" : "2500",
-                    "dateTime" : "TEST TEST TEST",
-                    "description" : "TEST TEST TEST"
-        ]
-
-        let childUpdates = post
-        print("CHILDUPDATES: \(childUpdates)")
-       
-        Database.database().reference().root.child("jacksavagery").child(key).updateChildValues(["calorieEntry": "0", "calorieLimit" : "2500", "dateTime" : "TEST TEST TEST","description" : "TEST TEST TEST"])
-
+    func updateValues() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
+        let date = dateFormatter.string(from: (datePicker?.date)!)
+        let key = UserDefaults.standard.string(forKey: "key") ?? ""
+       // let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+        Database.database().reference().root.child(userID!).child(key).updateChildValues(["calorieEntry" : calorieEntry?.text! ?? "",
+                                                                                                 "calorieLimit" : self.calorieLimit,
+                                                                                                 "dateTime" : date,
+                                                                                                 "description" : desc?.text! ?? ""
+            ])
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateValues()
+      //  navigationController?.popViewController(animated: true)
+    }
+
     
 }
