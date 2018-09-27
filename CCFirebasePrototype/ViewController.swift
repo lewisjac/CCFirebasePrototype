@@ -32,6 +32,7 @@ class ViewController: UIViewController {
     var keyDateArray = [String]() // this array holds the keys which gain access to the values in the fb databse
     var now = Date()
     let userID = Auth.auth().currentUser?.uid
+    var userDefaultsCalorieLimitKey = ""
     
     @IBOutlet weak var calorieTextBox: UITextField?
     @IBOutlet weak var foodDescription: UITextField?
@@ -67,9 +68,15 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        Database.database().isPersistenceEnabled = true
-        
         self.dbRef = Database.database().reference().child(self.userID!)
+        print(self.userID)
+        
+        guard let id = userID else {
+            print("no id")
+            return
+        }
+        userDefaultsCalorieLimitKey = id + "_calorieLimit"
+        
         cleanupDatabase()
         pullKeysFromFirebase()
         self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
@@ -110,12 +117,12 @@ class ViewController: UIViewController {
         }
         
         // prevent user's from entering 0 calories 
-        if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true {
+        if CharacterSet.letters.isSubset(of: CharacterSet(charactersIn: userCalories)) == true && userCalories != "" {
             
         } else {
             if let userEntry = calorieTextBox?.text {
              //   let aNewDay = newDay(date: calEntryDate)
-                let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+                let pulledCalorieLimit = UserDefaults.standard.string(forKey: userDefaultsCalorieLimitKey) ?? "0"
                 let sweet = UserEntry(calories: userEntry, description: food, dateTime: calEntryDate, calorieLimit: pulledCalorieLimit, newDay: "")// this creates a sweet object we can pass along to firebase
                 let sweetRef = self.dbRef.child(calEntryDate) // creates a reference for the sweet
                 sweetRef.setValue(sweet.toAnyObject())
@@ -128,35 +135,7 @@ class ViewController: UIViewController {
         
     }
     
-    // determine if new entry is for a new day
-//    func newDay(date: String) -> String {
-//        var dateToReturn = ""
-//        let newDate = date
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
-//        let latestEntry = dateFormatter.date(from: newDate)
-//        var keys = [""]
-//        if let endOfDayKeys = UserDefaults.standard.array(forKey: "endOfDayLimits") as? [String] {
-//            keys = endOfDayKeys
-//        }
-//        let index = keys.count - 1
-//        let lastDayKey = keys[0]
-//        let lastDate = dateFormatter.date(from: lastDayKey)
-//        dateFormatter.dateFormat = "dd"
-//        let priorDate = Int(dateFormatter.string(from: lastDate!))!
-//        let currentDate = Int(dateFormatter.string(from: latestEntry!))!
-//
-//        if priorDate != currentDate {
-//            dateFormatter.dateFormat = "MMM dd"
-//            if let dayToReturn = latestEntry {
-//                dateToReturn = dateFormatter.string(from: dayToReturn)
-//            }
-//        } else {
-//            dateToReturn = ""
-//        }
-//
-//        return dateToReturn
-//    }
+
     
     // This removes entries from the database that are more than eight days old.
     func cleanupDatabase() {
@@ -507,7 +486,7 @@ class ViewController: UIViewController {
             }
             
 
-            let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+            let pulledCalorieLimit = UserDefaults.standard.string(forKey: self.userDefaultsCalorieLimitKey) ?? "0"
             let calLimitAsInt = Int(pulledCalorieLimit)!
             let sevenDayCalLimitTotal = lastSevenDaysOfCalorieLimitsAsIntArray.reduce(0,+)
             self.calories = lastSevenDaysOfCalorieLimitsAsIntArray
@@ -540,7 +519,7 @@ class ViewController: UIViewController {
         let todayCaloriesSpent = caloriesSpent
         var todayRemaining = 0
         var cache = 0
-        let pulledCalorieLimit = UserDefaults.standard.string(forKey: "calorieLimit") ?? "0"
+        let pulledCalorieLimit = UserDefaults.standard.string(forKey: userDefaultsCalorieLimitKey) ?? "0"
         let calLimitAsInt = Int(pulledCalorieLimit)!
         
         if todayCaloriesSpent == 0 {
