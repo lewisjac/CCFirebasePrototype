@@ -11,10 +11,19 @@ import Firebase
 import FBSDKLoginKit
 import UIKit
 
-class SettingsVC: UIViewController {
+protocol ObtainData {
+    func didFetchData(data: String)
+}
+
+class SettingsVC: UIViewController, ObtainData {
     var ref = Database.database().reference()
     var reference: DatabaseReference!
     let userID = Auth.auth().currentUser?.uid
+    var userEntry: UserEntry!
+    var key = ""
+    var calorieLimitFromFB = ""
+    var calorieEntry = ""
+    var desc = ""
     var userDefaultsCalorieLimitKey = ""
     @IBOutlet weak var userEmail: UILabel?
     @IBOutlet weak var calorieLimit: UITextField?
@@ -23,15 +32,18 @@ class SettingsVC: UIViewController {
     override func viewDidLoad() {
         userEmail?.text = Auth.auth().currentUser?.email
     
+    
         guard let id = userID else {
             print("no id")
             return
         }
         userDefaultsCalorieLimitKey = id + "_calorieLimit"
-        
-        let pulledCalorieLimit = UserDefaults.standard.string(forKey: userDefaultsCalorieLimitKey) ?? "0"
-        calorieLimit?.text = pulledCalorieLimit // this set's the standard calorie limit to 0 unless a limit has been entered.
+        lastCalLimit()
+        print(calorieLimitFromFB)
+        // this set's the standard calorie limit to 0 unless a limit has been entered.
          self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+        
+      
     }
     
 
@@ -55,17 +67,55 @@ class SettingsVC: UIViewController {
 
     }
     
-//    func updateCalorieLimit() {
-//        let calLimit = calorieLimit?.text
-//        UserDefaults.standard.set(calLimit, forKey: "calorieLimit")
-//
-//        ref.root.child(userID!).childByAutoId().observeSingleEvent(of: .value, with: { (snapshot) in
-//            print(snapshot)
-//
-//        }) { (error) in
-//            print(error.localizedDescription)
-//        }
-//    }
+    func findLastCalorieLimitSetting(handler: @escaping (String) -> Void) {
+        ref.root.child(userID!).queryLimited(toLast: 1).observe(.value, with: { (snapshot) in
+            var dictData: [String:Any] = [:]
+            var di: [String:String] = [:]
+            var key = ""
+            var calorieLimitFinal = ""
+
+            if let diData = snapshot.value as? [String:Any] {
+                    dictData = diData
+            }
+            if let datar = dictData.keys.first {
+                key = datar
+            }
+            if let actualData = dictData[key] as? [String:String] {
+                di = actualData
+            }
+            if let calLimit = di["calorieLimit"] {
+                calorieLimitFinal = calLimit
+            }
+            
+           // let caLimFin =
+            print("Here is the key: \(calorieLimitFinal)")
+            self.didFetchData(data: calorieLimitFinal)
+            handler(calorieLimitFinal)
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+    }
+    
+    func didFetchData(data: String) {
+        self.calorieLimitFromFB = data
+        let pulledCalorieLimit = UserDefaults.standard.string(forKey: userDefaultsCalorieLimitKey) ?? calorieLimitFromFB
+        calorieLimit?.text = pulledCalorieLimit
+    }
+    
+
+    func lastCalLimit() {
+        var lastValue = ""
+        self.findLastCalorieLimitSetting() { (handler) in
+            lastValue = handler
+        }
+    }
+
+    
+    
+    func value(snapshot: DataSnapshot) {
+        let value = snapshot.value as? NSDictionary
+        let calorieLimitFromFB = value?["calorieLimit"] as? String ?? ""
+    }
     
     @IBAction func logOut(_ sender: UIButton) {
         let firebaseAuth = Auth.auth()

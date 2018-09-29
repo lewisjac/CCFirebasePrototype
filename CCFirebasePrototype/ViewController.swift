@@ -20,7 +20,11 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 
-class ViewController: UIViewController {
+protocol CollectData {
+    func displayCacheValue(caloriesSpent: Int, calorieLimitTotal: Int, calorieSpentTotal: Int, lastCalorieLimit: Int)
+}
+
+class ViewController: UIViewController, CollectData {
     
     var dbRef: DatabaseReference!
     var totalCals: Int = 0
@@ -69,7 +73,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.dbRef = Database.database().reference().child(self.userID!)
-        print(self.userID)
+
         
         guard let id = userID else {
             print("no id")
@@ -260,7 +264,10 @@ class ViewController: UIViewController {
         
         // find the last calorieLimit for each day
         while index > -1 {
+            print("Index: \(index)")
+            print("Comparing \(keysAsDates[index]) > \(sevenDaysAgo)")
             if keysAsDates[index] > sevenDaysAgo {
+                print("\(keysAsDates[index]) > \(sevenDaysAgo)")
                 valueA = keysAsDates[index]
                 let valueA_Day = Calendar.current.component(.day, from: valueA)
                 
@@ -277,10 +284,10 @@ class ViewController: UIViewController {
                     if index == keysAsDates.count - 1 {
                         arrayOfLastSevenCalLimitKeys.append(keysAsDates[index])
                         arrayOfLastSevenCalLimitShortDays.append(valueA_Day)
-                        index -= 1
+                       
                         
                     } else if valueA_Day != valueB_Day  {
-                        for value in arrayOfLastSevenCalLimitShortDays { // this is looking at an explicit day and is useleses
+                        for value in arrayOfLastSevenCalLimitShortDays {
                             if valueA_Day == value {
                                 break
                             } else {
@@ -289,10 +296,14 @@ class ViewController: UIViewController {
                         }
                     }
                 }
+                print("Index before decrement: \(index)")
                 index -= 1
+                print("Index after decrement: \(index)")
+                
             } else {
                 break
             }
+            print(arrayOfLastSevenCalLimitKeys)
         }
         
         for date in arrayOfLastSevenCalLimitKeys {
@@ -303,7 +314,7 @@ class ViewController: UIViewController {
         }
         
         
-        print(convertedArrayAsTypeString)
+        //print(convertedArrayAsTypeString)
         return convertedArrayAsTypeString
     }
     
@@ -477,6 +488,7 @@ class ViewController: UIViewController {
                             if calorieLimitAsString != "" && calorieLimitAsString != "lk" {
                                 let calLimit = Int(calorieLimitAsString)
                                 lastSevenDaysOfCalorieLimitsAsIntArray.append(calLimit!)
+                                print("Call Limit: \(calLimit), \(date)")
                             }
                         }
                     }

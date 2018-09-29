@@ -45,10 +45,8 @@ class EditVC: UIViewController {
     func setEntryValues(){
         let pulledKey = UserDefaults.standard.string(forKey: "key") ?? ""
         // Set Descriptoin
+        let justTheChild = ref.root.child(userID!).child(pulledKey)
         ref.root.child(userID!).child(pulledKey).observeSingleEvent(of: .value, with: { (snapshot) in
-            print(snapshot)
-            
-                        // Get user value
             let value = snapshot.value as? NSDictionary
             self.calorieEntry?.text = value?["calorieEntry"] as? String ?? ""
             self.calorieLimit = value?["calorieLimit"] as? String ?? ""
@@ -66,7 +64,6 @@ class EditVC: UIViewController {
         
         
         // Set DatePicker
-        print(pulledKey)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let date = dateFormatter.date(from: pulledKey)

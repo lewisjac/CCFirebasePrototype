@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CCFirebasePrototype/ViewController.swift"
-            timestampString = "559746789.398896"
+            timestampString = "559938889.128114"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "70"
-            endingLineNumber = "70"
-            landmarkName = "viewDidLoad()"
+            startingLineNumber = "307"
+            endingLineNumber = "307"
+            landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CCFirebasePrototype/AppDelegate.swift"
-            timestampString = "559739832.960501"
+            filePath = "CCFirebasePrototype/ViewController.swift"
+            timestampString = "559938889.128839"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "18"
-            endingLineNumber = "18"
-            landmarkName = "application(_:didFinishLaunchingWithOptions:)"
+            startingLineNumber = "267"
+            endingLineNumber = "267"
+            landmarkName = "findEndOfDayCalLimit(dates:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CCFirebasePrototype/ViewController.swift"
+            timestampString = "559938889.129458"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "270"
+            endingLineNumber = "270"
+            landmarkName = "findEndOfDayCalLimit(dates:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
